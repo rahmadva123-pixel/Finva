@@ -1,0 +1,5 @@
+.next-dev/
+node_modules/
+dist/
+public/
+coverage/

@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Only admins (custom claim `admin: true`) may write settings documents
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // vipClaims should only be written by trusted server (admin SDK). Prevent client writes.
+    match /vipClaims/{doc} {
+      allow read: if request.auth != null;
+      allow write: if false; // server-side only
+    }
+
+    // bonusTransactions written by server only
+    match /bonusTransactions/{doc} {
+      allow read: if request.auth != null;
+      allow write: if false; // server-side only
+    }
+
+    // notifications: clients may read their own notifications; cannot create arbitrary notifications
+    match /notifications/{doc} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow write: if false; // server only
+    }
+
+    // Deposits: clients may create their own deposit records, but not modify status
+    match /deposits/{doc} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && (request.auth.token.admin == true || resource.data.userId == request.auth.uid);
+      allow update: if request.auth != null && request.auth.token.admin == true;
+      allow delete: if false;
+    }
+
+    // Users: clients can read and update their own profile fields but cannot change balance/lastVipClaimAt
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
+      allow update: if request.auth != null && request.auth.uid == userId &&
+        // disallow client updates to sensitive fields
+        !(request.resource.data.keys().hasAny(['balance', 'lastVipClaimAt', 'totalEarning']) );
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // Default: deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

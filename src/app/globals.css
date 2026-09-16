@@ -1,0 +1,174 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 15%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142 76% 56%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 25%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 142 76% 56%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217 33% 22%;
+    --input: 217 33% 17%;
+    --ring: 142 76% 56%;
+    --chart-1: 142 76% 56%;
+    --chart-2: 210 40% 98%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+
+    --bg-card-image: var(--bg-card-image-url, none);
+    --bg-card-overlay: var(--bg-card-overlay-color, transparent);
+    --bg-dialog-image: var(--bg-dialog-image-url, none);
+    --bg-dialog-overlay: var(--bg-dialog-overlay-color, transparent);
+  }
+ 
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 15%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142 76% 56%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 25%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 142 76% 56%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217 33% 22%;
+    --input: 217 33% 17%;
+    --ring: 142 76% 56%;
+    --chart-1: 142 76% 56%;
+    --chart-2: 210 40% 98%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  @keyframes splash-logo {
+    0% {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-splash-logo {
+      animation: splash-logo 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+}
+
+@layer components {
+    .bg-card-dynamic {
+        background-image: var(--bg-card-image);
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    .bg-card-dynamic::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-color: var(--bg-card-overlay);
+        z-index: 0;
+        border-radius: inherit;
+    }
+    .bg-card-dynamic > * {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .bg-dialog-dynamic {
+        background-image: var(--bg-dialog-image);
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    .bg-dialog-dynamic::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-color: var(--bg-dialog-overlay);
+        z-index: 0;
+        border-radius: inherit;
+    }
+    .bg-dialog-dynamic > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .tree-container {
+        @apply w-full overflow-x-auto p-4;
+    }
+    .tree ul {
+        @apply relative flex justify-center;
+    }
+    .tree li {
+        @apply flex flex-col items-center relative px-4 pt-8;
+    }
+    /* Vertical line down from parent */
+    .tree ul > li::before {
+        content: '';
+        @apply absolute top-0 left-1/2 w-px h-8 bg-border -translate-x-1/2;
+    }
+    /* Horizontal line connecting siblings */
+    .tree ul::before {
+        content: '';
+        @apply absolute top-0 left-0 w-full h-px bg-border;
+    }
+
+    /* Adjustments for first and last children to trim the horizontal line */
+    .tree ul > li:first-child::after {
+        content: '';
+        @apply absolute top-0 left-0 w-1/2 h-px bg-card;
+    }
+     .tree ul > li:last-child::after {
+        content: '';
+        @apply absolute top-0 right-0 w-1/2 h-px bg-card;
+    }
+    /* A single child doesn't need a connecting line */
+     .tree ul > li:only-child::after {
+        display: none;
+    }
+    
+    /* Root node should not have an incoming line */
+    .tree > ul > li::before {
+        display: none;
+    }
+}
+    
