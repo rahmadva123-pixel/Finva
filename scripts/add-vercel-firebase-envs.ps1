@@ -24,25 +24,15 @@ if (-not $proj -or -not $email -or -not $key) {
     exit 3
 }
 
-Write-Host "Adding Vercel envs for project: $proj"
+Write-Host "NOTE: This repository must not contain private keys or service-account JSON files."
+Write-Host "The automated upload of private keys has been disabled to avoid accidental exposure."
 
-Write-Host "-- Adding to preview"
-vercel env add FIREBASE_ADMIN_PROJECT_ID $proj preview --yes
-vercel env add FIREBASE_ADMIN_CLIENT_EMAIL $email preview --yes
+Write-Host "Manual steps to add required Vercel environment variables:"
+Write-Host "1. Open your Vercel Project → Settings → Environment Variables."
+Write-Host "2. Add the following variables (use the Vercel UI or a secure secrets manager):"
+Write-Host "   - FIREBASE_ADMIN_PROJECT_ID"
+Write-Host "   - FIREBASE_ADMIN_CLIENT_EMAIL"
+Write-Host "   - FIREBASE_ADMIN_PRIVATE_KEY  (paste PEM text in the UI; do NOT commit this file)"
+Write-Host "3. For local development, set these variables in your local environment (e.g., .env.local but do NOT commit it)."
 
-# Write private key to a temp file and pipe it to the Vercel CLI to avoid
-# the CLI interpreting leading dashes in the PEM as options.
-$tmp = Join-Path $env:TEMP ([System.IO.Path]::GetRandomFileName())
-Set-Content -Path $tmp -Value ($key -replace '\\n', "`n") -NoNewline -Encoding utf8
-Get-Content -Raw $tmp | vercel env add FIREBASE_ADMIN_PRIVATE_KEY preview --yes
-Remove-Item -Force $tmp
-
-Write-Host "-- Adding to production"
-vercel env add FIREBASE_ADMIN_PROJECT_ID $proj production --yes
-vercel env add FIREBASE_ADMIN_CLIENT_EMAIL $email production --yes
-$tmp = Join-Path $env:TEMP ([System.IO.Path]::GetRandomFileName())
-Set-Content -Path $tmp -Value ($key -replace '\\n', "`n") -NoNewline -Encoding utf8
-Get-Content -Raw $tmp | vercel env add FIREBASE_ADMIN_PRIVATE_KEY production --yes
-Remove-Item -Force $tmp
-
-Write-Host "Finished adding envs. Redeploy preview and test the admin features."
+Write-Host "If you still want an automated flow, run the Vercel CLI commands manually from a secure environment—do not pipe secrets in CI or store them in the repo."

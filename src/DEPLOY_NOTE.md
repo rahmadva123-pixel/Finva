@@ -12,8 +12,8 @@ Add these in **Vercel → Project Settings → Environment Variables**:
 
 ## Important notes
 - Do **not** store secrets in `vercel.json`.
-- Paste the full Firebase private key into `FIREBASE_ADMIN_PRIVATE_KEY`.
-- The app already normalizes wrapped quotes and `\n` line breaks for Vercel.
+- Store the Firebase private key securely (e.g., Vercel UI or a secrets manager). Do NOT commit private keys or service-account JSON files to the repository.
+- The app already normalizes wrapped quotes and `\\n` line breaks for Vercel.
 
 ## Firebase setup
 In **Firebase Console → Authentication → Settings → Authorized domains**, add:
