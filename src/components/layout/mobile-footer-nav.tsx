@@ -80,11 +80,11 @@ export function MobileFooterNav() {
 
                 return (
                     <Link href={item.href} key={item.href} className={cn(
-                        "flex flex-col items-center text-muted-foreground w-full pt-1 pb-1 transition-colors",
+                        "flex flex-col items-center text-muted-foreground flex-1 min-w-0 pt-1 pb-1 transition-colors",
                         isActive && "text-primary"
                     )}>
                         <Icon className="h-6 w-6" />
-                        <span className="text-xs">{item.label}</span>
+                        <span className="text-xs truncate block w-full">{item.label}</span>
                     </Link>
                 );
             })}
