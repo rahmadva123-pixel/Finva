@@ -14,7 +14,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import React, { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 
 const createHumanCheck = () => {
   const first = Math.floor(Math.random() * 9) + 1;
@@ -33,11 +33,25 @@ function LoginForm() {
   const [humanCheck, setHumanCheck] = useState(createHumanCheck);
   const [humanAnswer, setHumanAnswer] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isLocalDev = process.env.NODE_ENV !== "production";
   const localDevEmail = "user@local.test";
   const localDevPassword = "User@123456";
 
   useEffect(() => {
+    const stored = typeof window !== 'undefined' ? localStorage.getItem('finva_remember_email') : null;
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored || 'null');
+        if (parsed?.email) {
+          const el = document.querySelector('#email') as HTMLInputElement | null;
+          if (el) el.value = parsed.email;
+          setRememberMe(true);
+        }
+      } catch {}
+    }
     const fetchContent = async () => {
         if (!db) return;
         const docRef = doc(db, 'template', 'landingPage');
@@ -54,7 +68,10 @@ function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    if (processing) return; // prevent duplicate submissions
+    setErrorMessage(null);
+    setProcessing(true);
+    const form = e.target as HTMLFormElement;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     if (humanAnswer.trim() !== humanCheck.answer) {
@@ -152,78 +169,102 @@ function LoginForm() {
             description = error.message;
         }
       }
+      setErrorMessage(description);
       toast({
         variant: "destructive",
         title: "Login Failed",
         description: description,
       });
     }
+    finally {
+      setProcessing(false);
+    }
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-primary/20 via-primary/10 to-background p-12">
-        <div className="max-w-lg space-y-6">
-          <h1 className="text-5xl font-headline">Finva</h1>
-          <p className="text-lg text-muted-foreground">A modern trading experience — monitor markets, manage funds, and invest with confidence.</p>
-          <div className="rounded-xl bg-muted/20 p-4">
-            <p className="text-sm text-muted-foreground">Quick market snapshot</p>
-            <div className="mt-3 grid grid-cols-1 gap-2">
-              <div className="flex items-center justify-between text-sm"><span>BTC/USDT</span><span className="font-medium">$27,500</span></div>
-              <div className="flex items-center justify-between text-sm"><span>ETH/USDT</span><span className="font-medium">$1,800</span></div>
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background/60 to-muted p-6 relative overflow-hidden">
+      {/* subtle decorative SVG lines */}
+      <svg className="pointer-events-none absolute inset-0 -z-10 opacity-20" width="100%" height="100%" viewBox="0 0 1440 900" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="g1" x1="0" x2="1">
+            <stop offset="0%" stopColor="rgba(99,102,241,0.06)" />
+            <stop offset="100%" stopColor="rgba(139,92,246,0.02)" />
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#g1)" />
+        <g stroke="rgba(255,255,255,0.04)" strokeWidth="1" fill="none">
+          <path d="M0,700 C300,600 600,800 900,700 C1200,600 1440,720 1440,720" />
+          <path d="M0,500 C200,420 500,560 800,500 C1100,440 1400,520 1440,500" />
+        </g>
+      </svg>
+
+      <div className="w-full max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div className="hidden lg:flex flex-col justify-center gap-6 px-6">
+          <div className="flex items-center gap-3">
+            {/* logo & brand provided by AuthLayout (top-left) — keep here as visual anchor */}
+            <h1 className="text-4xl font-headline">Finva</h1>
+          </div>
+          <p className="text-lg text-muted-foreground max-w-md">A premium trading experience — monitor markets, manage funds, and invest with insight.</p>
+          <div className="rounded-xl bg-muted/10 p-4 max-w-sm">
+            <div className="flex items-center justify-between text-sm"><div>BTC/USDT</div><div className="font-medium">$27,500</div></div>
+            <div className="flex items-center justify-between text-sm mt-2"><div>ETH/USDT</div><div className="font-medium">$1,800</div></div>
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center justify-center p-6">
-        <div className="w-full max-w-md">
-          <div className="backdrop-blur-sm rounded-2xl bg-background/60 border border-border/40 p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 flex items-center justify-center rounded-md bg-primary/10 text-primary">🔐</div>
-                <div>
-                  <h2 className="text-lg font-semibold">Sign in to Finva</h2>
-                  <p className="text-xs text-muted-foreground">Securely access your account</p>
-                </div>
-              </div>
-              <div className="text-xs text-muted-foreground">Need an account? <Link href="/signup" className="text-primary">Sign up</Link></div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email" placeholder="you@company.com" defaultValue={isLocalDev ? localDevEmail : ""} required />
-              </div>
-
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Input id="password" name="password" type={showPassword ? 'text' : 'password'} defaultValue={isLocalDev ? localDevPassword : ''} required />
-                  <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => setShowPassword(v => !v)}>
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">{isLocalDev ? `Dev: ${localDevEmail}` : ''}</div>
-                <Link href="/forgot-password" className="text-sm text-primary">Forgot?</Link>
-              </div>
-
-              <div className="rounded-xl border border-border/50 p-3 bg-muted/10">
-                <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center px-4">
+          <div className="w-full max-w-md">
+            <div className="relative rounded-2xl bg-card/95 border border-border/60 p-6 shadow-xl">
+              <div className="mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">🔐</div>
                   <div>
-                    <p className="text-sm font-medium">Verification</p>
-                    <p className="text-xs text-muted-foreground">{humanCheck.question}</p>
+                    <h2 className="text-2xl font-semibold">Welcome Back</h2>
+                    <p className="text-sm text-muted-foreground">Sign in to continue to your trading dashboard.</p>
                   </div>
-                  <Button type="button" variant="outline" onClick={() => { setHumanCheck(createHumanCheck()); setHumanAnswer(''); }}>Refresh</Button>
                 </div>
-                <Input id="human-check-login" value={humanAnswer} onChange={(e) => setHumanAnswer(e.target.value)} placeholder="Answer" className="mt-3" required />
               </div>
 
-              <Button type="submit" className="w-full">Sign in</Button>
-            </form>
+              <form onSubmit={handleSubmit} className="space-y-4" aria-label="Login form">
+                {errorMessage && <div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">{errorMessage}</div>}
+
+                <div>
+                  <label htmlFor="email" className="text-sm font-medium">Email Address</label>
+                  <div className="mt-2 relative">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"><Mail className="h-4 w-4" /></div>
+                    <Input id="email" name="email" type="email" placeholder="Enter your email address" defaultValue={isLocalDev ? localDevEmail : ""} className="pl-10 rounded-xl min-h-12 focus:ring-2 focus:ring-primary/40 transition" required />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="text-sm font-medium">Password</label>
+                  <div className="mt-2 relative">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"><Lock className="h-4 w-4" /></div>
+                    <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" defaultValue={isLocalDev ? localDevPassword : ''} className="pl-10 rounded-xl min-h-12 focus:ring-2 focus:ring-primary/40 transition" required />
+                    <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="inline-flex items-center text-sm">
+                    <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="h-4 w-4 rounded border" />
+                    <span className="ml-2">Remember me</span>
+                  </label>
+                  <Link href="/forgot-password" className="text-sm text-primary">Forgot Password?</Link>
+                </div>
+
+                <Button type="submit" className="w-full" disabled={processing}>
+                  {processing ? <><Loader2 className="h-4 w-4 animate-spin mr-2 inline" /> Signing in...</> : 'Sign In'}
+                </Button>
+
+                <div className="text-center text-sm text-muted-foreground">
+                  Don&apos;t have an account? <Link href="/signup" className="text-primary">Create Account</Link>
+                </div>
+
+                <div className="text-center text-xs text-muted-foreground mt-2">Secure access to your trading account</div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
