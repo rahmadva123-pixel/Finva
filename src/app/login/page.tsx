@@ -206,7 +206,7 @@ function LoginForm() {
 
       <div className="w-full max-w-[420px] mx-auto">
         <div className="relative rounded-2xl bg-card/95 border border-border/60 p-6 shadow-xl overflow-hidden animate-float-y">
-          <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-indigo-500 to-purple-600 opacity-90"></div>
+          <div className="absolute left-0 top-0 h-full w-1.5 bg-primary/90"></div>
           <div className="mb-4 text-center ml-3">
             <div className="mx-auto h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">🔐</div>
             <h2 className="text-2xl font-semibold mt-3">{title}</h2>
@@ -242,7 +242,7 @@ function LoginForm() {
               </label>
             </div>
 
-            <Button type="submit" className="w-full py-3 text-base bg-gradient-to-r from-indigo-600 via-violet-600 to-pink-600 text-white hover:opacity-95 active:scale-95 transition disabled:opacity-60" disabled={processing}>
+            <Button type="submit" className="w-full py-3 text-base bg-primary text-white hover:opacity-95 active:scale-95 transition disabled:opacity-60" disabled={processing}>
               {processing ? <><Loader2 className="h-4 w-4 animate-spin mr-2 inline" /> Unlocking...</> : 'Unlock Account'}
             </Button>
 
