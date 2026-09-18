@@ -39,8 +39,7 @@ export default function DashboardPage() {
   const pathname = usePathname();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [promoStatus, setPromoStatus] = useState<any>(null);
-  const [promoTimer, setPromoTimer] = useState<string>("");
+  
 
 interface CurrencySettings {
   symbol: string;
@@ -257,7 +256,7 @@ interface CurrencySettings {
     }
   };
 
-  const handleRedeemFromDashboard = async () => { /* promo system removed */ };
+  
 
   return (
     <DashboardLayout>
