@@ -125,6 +125,16 @@
   .animate-splash-logo {
       animation: splash-logo 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
+
+  @keyframes floatY {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .animate-float-y {
+    animation: floatY 6s ease-in-out infinite;
+  }
 }
 
 @layer components {
