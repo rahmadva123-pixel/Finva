@@ -547,27 +547,26 @@ export default function AdminPendingDepositsPage() {
                 ) : (
                     <div className="grid gap-6">
                         {deposits.map(deposit => (
-                            <Card key={deposit.id} className="bg-muted/30">
-                                <CardHeader>
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <CardTitle className="text-2xl">{formatCurrency(deposit.amount)}</CardTitle>
-                                            <CardDescription>via {deposit.method} {deposit.network ? `(${deposit.network})` : ''}</CardDescription>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm font-semibold flex items-center gap-2"><User className="h-4 w-4" /> {deposit.user?.email || 'Unknown User'}</p>
-                                            <p className="text-xs text-muted-foreground">UID: {deposit.userId}</p>
-                                        </div>
+                            <TradingCard key={deposit.id} className="bg-muted/30">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <div className="text-2xl font-bold">{formatCurrency(deposit.amount)}</div>
+                                        <div className="text-sm text-muted-foreground">via {deposit.method} {deposit.network ? `(${deposit.network})` : ''}</div>
                                     </div>
-                                </CardHeader>
-                                <CardContent>
+                                    <div className="text-right">
+                                        <p className="text-sm font-semibold flex items-center gap-2"><User className="h-4 w-4" /> {deposit.user?.email || 'Unknown User'}</p>
+                                        <p className="text-xs text-muted-foreground">UID: {deposit.userId}</p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4">
                                     <h4 className="text-sm font-semibold mb-2">User Provided Details:</h4>
                                     <div className="text-sm bg-background p-3 rounded-md space-y-2">
                                        {deposit.details && Object.keys(deposit.details).length > 0 ? (
                                             Object.entries(deposit.details).map(([key, value]) => (
                                                 <div key={key} className="grid grid-cols-3">
                                                     <span className="text-muted-foreground capitalize col-span-1">{key.replace(/_/g, ' ')}:</span>
-                                                    {value.startsWith('data:image') ? (
+                                                    {String(value).startsWith('data:image') ? (
                                                         <Dialog>
                                                             <DialogTrigger asChild>
                                                                 <Button variant="outline" size="sm" className="w-fit"><FileImage className="mr-2 h-3 w-3"/> View Slip</Button>
@@ -577,7 +576,7 @@ export default function AdminPendingDepositsPage() {
                                                                     <DialogTitle>Deposit Slip</DialogTitle>
                                                                 </DialogHeader>
                                                                 <div className="my-4">
-                                                                    <Image src={value} alt="Deposit slip" width={800} height={600} className="rounded-md object-contain" />
+                                                                    <Image src={String(value)} alt="Deposit slip" width={800} height={600} className="rounded-md object-contain" />
                                                                 </div>
                                                             </DialogContent>
                                                         </Dialog>
@@ -590,8 +589,9 @@ export default function AdminPendingDepositsPage() {
                                            <p className="text-muted-foreground italic">No details provided by user.</p>
                                        )}
                                     </div>
-                                </CardContent>
-                                <CardFooter className="flex justify-between items-center bg-muted/50 p-4">
+                                </div>
+
+                                <div className="mt-4 flex items-center justify-between">
                                      <p className="text-xs text-muted-foreground">
                                         Requested on {format(new Date(deposit.createdAt.seconds * 1000), "PPpp")}
                                     </p>
@@ -620,8 +620,8 @@ export default function AdminPendingDepositsPage() {
                                             {processingId === deposit.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Check className="mr-2 h-4 w-4" />} Approve
                                         </Button>
                                     </div>
-                                </CardFooter>
-                            </Card>
+                                </div>
+                            </TradingCard>
                         ))}
                     </div>
                 )}
