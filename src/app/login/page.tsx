@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { TradingCard } from '@/components/ui/trading-card';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/layout/auth-layout";
@@ -160,76 +161,83 @@ function LoginForm() {
   };
 
   return (
-    <Card className="rounded-[24px] border-0 bg-transparent shadow-none">
-      <CardHeader className="space-y-2 text-center">
-        <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <span className="text-lg font-bold">🔐</span>
+    <TradingCard className="max-w-3xl mx-auto bg-gradient-to-br from-primary/8 via-card to-card p-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="hidden flex-col gap-4 rounded-lg p-4 sm:flex">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <span className="text-lg font-bold">🔐</span>
+          </div>
+          <h2 className="text-2xl font-headline">{title}</h2>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
+          <div className="mt-4 rounded-xl bg-muted/30 p-3 text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">Secure sign in</p>
+            <p>Access your trading dashboard, manage deposits, and monitor your portfolio.</p>
+          </div>
         </div>
-        <CardTitle className="font-headline text-2xl sm:text-3xl">{title}</CardTitle>
-        <CardDescription className="text-sm sm:text-base">{subtitle}</CardDescription>
-        {isLocalDev && (
-          <div className="mt-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-3 text-left text-xs text-muted-foreground">
-            <p className="font-medium text-foreground">Local dev user login</p>
-            <p>Email: <span className="font-mono">{localDevEmail}</span></p>
-            <p>Password: <span className="font-mono">{localDevPassword}</span></p>
-            <p className="mt-1">Admin login stays on <span className="font-mono">/admin/login</span>.</p>
-          </div>
-        )}
-      </CardHeader>
-      <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" placeholder="name@example.com" defaultValue={isLocalDev ? localDevEmail : ""} className="min-h-12 rounded-xl" required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Input id="password" name="password" type={showPassword ? "text" : "password"} defaultValue={isLocalDev ? localDevPassword : ""} className="min-h-12 rounded-xl pr-12" required />
-              <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"}>
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-border/60 bg-muted/30 p-3">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium text-foreground">Human verification</p>
-                <p className="text-xs text-muted-foreground">{humanCheck.question}</p>
-              </div>
-              <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setHumanCheck(createHumanCheck()); setHumanAnswer(""); }}>
-                Refresh
-              </Button>
-            </div>
-            <Input
-              id="human-check-login"
-              value={humanAnswer}
-              onChange={(e) => setHumanAnswer(e.target.value)}
-              placeholder="Type the answer"
-              className="min-h-12 rounded-xl"
-              inputMode="numeric"
-              required
-            />
-          </div>
-          <div className="flex justify-end text-sm">
-              <Link href="/forgot-password" className="font-medium text-primary underline-offset-4 hover:underline">
-                  Forgot Password?
-              </Link>
-          </div>
-          <Button type="submit" className="min-h-12 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
-            Log In
-          </Button>
-        </form>
-      </CardContent>
-      <CardFooter className="flex justify-center px-4 pb-5 text-center text-sm">
-        <p>
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-medium text-primary underline-offset-4 hover:underline">
-            Sign up
-          </Link>
-        </p>
-      </CardFooter>
-    </Card>
+
+        <div>
+          <Card className="rounded-2xl p-4 shadow-none">
+            <CardContent className="px-0 pb-0">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" name="email" type="email" placeholder="name@example.com" defaultValue={isLocalDev ? localDevEmail : ""} className="min-h-12 rounded-xl" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Input id="password" name="password" type={showPassword ? "text" : "password"} defaultValue={isLocalDev ? localDevPassword : ""} className="min-h-12 rounded-xl pr-12" required />
+                    <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"}>
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-border/60 bg-muted/30 p-3">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Human verification</p>
+                      <p className="text-xs text-muted-foreground">{humanCheck.question}</p>
+                    </div>
+                    <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setHumanCheck(createHumanCheck()); setHumanAnswer(""); }}>
+                      Refresh
+                    </Button>
+                  </div>
+                  <Input
+                    id="human-check-login"
+                    value={humanAnswer}
+                    onChange={(e) => setHumanAnswer(e.target.value)}
+                    placeholder="Type the answer"
+                    className="min-h-12 rounded-xl"
+                    inputMode="numeric"
+                    required
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-sm">
+                  <Link href="/forgot-password" className="font-medium text-primary underline-offset-4 hover:underline">
+                    Forgot Password?
+                  </Link>
+                  {isLocalDev && <span className="text-xs text-muted-foreground">Dev: {localDevEmail}</span>}
+                </div>
+
+                <Button type="submit" className="min-h-12 w-full rounded-xl bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:opacity-95">
+                  Log In
+                </Button>
+              </form>
+            </CardContent>
+            <CardFooter className="flex justify-center px-0 pt-3 text-center text-sm">
+              <p>
+                Don&apos;t have an account?{' '}
+                <Link href="/signup" className="font-medium text-primary underline-offset-4 hover:underline">
+                  Sign up
+                </Link>
+              </p>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    </TradingCard>
   );
 }
 
