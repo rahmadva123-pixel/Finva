@@ -4,6 +4,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TradingCard } from '@/components/ui/trading-card';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -336,7 +337,7 @@ export default function DepositPage() {
     switch (step) {
       case 1:
         return (
-          <Card>
+          <TradingCard>
             <CardHeader>
               <CardTitle>Deposit Funds</CardTitle>
               <CardDescription>Enter the amount you wish to add to your wallet.</CardDescription>
@@ -365,11 +366,11 @@ export default function DepositPage() {
                 <Button type="submit" className="w-full">Continue</Button>
               </form>
             </CardContent>
-          </Card>
+          </TradingCard>
         );
       case 2:
         return (
-          <Card>
+          <TradingCard>
             <CardHeader>
                <div className="flex items-center gap-4">
                  <Button variant="ghost" size="icon" onClick={() => setStep(1)}><ArrowLeft /></Button>
@@ -410,13 +411,13 @@ export default function DepositPage() {
                     })}
                 </div>
             </CardContent>
-          </Card>
+          </TradingCard>
         );
       case 3: // Network selection for crypto
         if (!selectedMethod || selectedMethod.type !== 'crypto') return null;
         return (
-            <Card>
-                 <CardHeader>
+          <TradingCard>
+             <CardHeader>
                     <div className="flex items-center gap-4">
                         <Button variant="ghost" size="icon" onClick={() => setStep(2)}><ArrowLeft /></Button>
                         <div>
@@ -434,7 +435,7 @@ export default function DepositPage() {
                         </button>
                     ))}
                 </CardContent>
-            </Card>
+              </TradingCard>
         );
        case 4:
         if (!selectedMethod) return null;
@@ -442,9 +443,9 @@ export default function DepositPage() {
         const finalAddress = randomizedDetail?.address || selectedNetwork?.address;
         const finalBankDetails = randomizedDetail?.bankDetails || selectedMethod.bankDetails;
 
-        return (
-           <Card>
-                <CardHeader>
+           return (
+             <TradingCard>
+              <CardHeader>
                    <div className="flex items-center gap-4">
                      <Button variant="ghost" size="icon" onClick={goBack}><ArrowLeft /></Button>
                      <div>
@@ -553,8 +554,8 @@ export default function DepositPage() {
                             Confirm Deposit
                         </Button>
                     </form>
-                </CardContent>
-           </Card>
+                 </CardContent>
+               </TradingCard>
         )
       default:
         return null;
