@@ -161,65 +161,72 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background/50 to-muted p-6">
-      <Card className="w-full max-w-md rounded-2xl p-6">
-        <CardHeader className="text-center space-y-2">
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary/10 text-primary">🔐</div>
-          <CardTitle className="text-2xl font-headline">{title}</CardTitle>
-          <CardDescription className="text-sm text-muted-foreground">{subtitle}</CardDescription>
-        </CardHeader>
-
-        <CardContent className="pt-4">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="name@example.com" defaultValue={isLocalDev ? localDevEmail : ""} className="min-h-12 rounded-xl" required />
+    <div className="min-h-screen grid lg:grid-cols-2">
+      <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-primary/20 via-primary/10 to-background p-12">
+        <div className="max-w-lg space-y-6">
+          <h1 className="text-5xl font-headline">Finva</h1>
+          <p className="text-lg text-muted-foreground">A modern trading experience — monitor markets, manage funds, and invest with confidence.</p>
+          <div className="rounded-xl bg-muted/20 p-4">
+            <p className="text-sm text-muted-foreground">Quick market snapshot</p>
+            <div className="mt-3 grid grid-cols-1 gap-2">
+              <div className="flex items-center justify-between text-sm"><span>BTC/USDT</span><span className="font-medium">$27,500</span></div>
+              <div className="flex items-center justify-between text-sm"><span>ETH/USDT</span><span className="font-medium">$1,800</span></div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input id="password" name="password" type={showPassword ? "text" : "password"} defaultValue={isLocalDev ? localDevPassword : ""} className="min-h-12 rounded-xl pr-12" required />
-                <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"}>
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-border/60 bg-muted/20 p-3">
-              <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="flex items-center justify-center p-6">
+        <div className="w-full max-w-md">
+          <div className="backdrop-blur-sm rounded-2xl bg-background/60 border border-border/40 p-6 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 flex items-center justify-center rounded-md bg-primary/10 text-primary">🔐</div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Human verification</p>
-                  <p className="text-xs text-muted-foreground">{humanCheck.question}</p>
+                  <h2 className="text-lg font-semibold">Sign in to Finva</h2>
+                  <p className="text-xs text-muted-foreground">Securely access your account</p>
                 </div>
-                <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setHumanCheck(createHumanCheck()); setHumanAnswer(""); }}>
-                  Refresh
-                </Button>
               </div>
-              <Input
-                id="human-check-login"
-                value={humanAnswer}
-                onChange={(e) => setHumanAnswer(e.target.value)}
-                placeholder="Type the answer"
-                className="min-h-12 rounded-xl"
-                inputMode="numeric"
-                required
-              />
+              <div className="text-xs text-muted-foreground">Need an account? <Link href="/signup" className="text-primary">Sign up</Link></div>
             </div>
 
-            <div className="flex justify-between items-center text-sm">
-              <Link href="/forgot-password" className="font-medium text-primary underline-offset-4 hover:underline">Forgot Password?</Link>
-              {isLocalDev && <span className="text-xs text-muted-foreground">Dev: {localDevEmail}</span>}
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" placeholder="you@company.com" defaultValue={isLocalDev ? localDevEmail : ""} required />
+              </div>
 
-            <Button type="submit" className="min-h-12 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">Log In</Button>
-          </form>
-        </CardContent>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input id="password" name="password" type={showPassword ? 'text' : 'password'} defaultValue={isLocalDev ? localDevPassword : ''} required />
+                  <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => setShowPassword(v => !v)}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
 
-        <CardFooter className="pt-4 text-center">
-          <p className="text-sm">Don&apos;t have an account? <Link href="/signup" className="font-medium text-primary underline-offset-4 hover:underline">Sign up</Link></p>
-        </CardFooter>
-      </Card>
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">{isLocalDev ? `Dev: ${localDevEmail}` : ''}</div>
+                <Link href="/forgot-password" className="text-sm text-primary">Forgot?</Link>
+              </div>
+
+              <div className="rounded-xl border border-border/50 p-3 bg-muted/10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">Verification</p>
+                    <p className="text-xs text-muted-foreground">{humanCheck.question}</p>
+                  </div>
+                  <Button type="button" variant="outline" onClick={() => { setHumanCheck(createHumanCheck()); setHumanAnswer(''); }}>Refresh</Button>
+                </div>
+                <Input id="human-check-login" value={humanAnswer} onChange={(e) => setHumanAnswer(e.target.value)} placeholder="Answer" className="mt-3" required />
+              </div>
+
+              <Button type="submit" className="w-full">Sign in</Button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
