@@ -8,7 +8,8 @@ export function MarketCard({ symbol, name, price, change }: { symbol: string; na
       <div className="flex flex-col">
         <div className="min-w-0">
           <div className="font-semibold truncate">{symbol}</div>
-        {name && <div className="text-xs text-muted-foreground">{name}</div>}
+          {name && <div className="text-xs text-muted-foreground">{name}</div>}
+        </div>
       </div>
       <div className="text-right">
         <div className="text-sm font-semibold truncate">{price}</div>
