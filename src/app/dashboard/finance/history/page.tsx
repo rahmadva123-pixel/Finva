@@ -9,6 +9,8 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, getDoc, orderBy } from "firebase/firestore";
 import { Loader2, CheckCircle, Clock, XCircle, Info, MessageSquare, ArrowUp, ArrowDown, Gift, TrendingUp, CircleDollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { TradingCard } from '@/components/ui/trading-card';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 
@@ -194,31 +196,33 @@ export default function FinanceHistoryPage() {
                 ) : transactions.length === 0 ? (
                     <p className="text-center text-muted-foreground p-8">Your transaction history is empty.</p>
                 ) : (
-                    <div className="space-y-4">
-                        {transactions.map(tx => {
-                            const { icon, color } = getTransactionProps(tx);
-                            const amountSign = (tx.type === 'withdraw' || tx.type === 'send') ? '-' : '+';
-                            return (
-                                <div key={tx.id} className="bg-muted/30 rounded-lg p-4 flex items-center justify-between gap-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-muted rounded-full">
-                                            {icon}
-                                        </div>
-                                        <div>
-                                            <p className="font-bold">{tx.title}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                            {format(new Date(tx.date.seconds * 1000), "PPpp")}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className={`font-bold text-lg ${color}`}>{amountSign}{formatCurrency(tx.amount)}</p>
-                                        {getStatusBadge(tx.status)}
-                                    </div>
-                                </div>
-                            )
-                        })}
-                    </div>
+                  <div className="space-y-3">
+                    {transactions.map(tx => {
+                      const { icon, color } = getTransactionProps(tx);
+                      const amountSign = (tx.type === 'withdraw' || tx.type === 'send') ? '-' : '+';
+                      return (
+                        <TradingCard key={tx.id} className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-full bg-muted/20">
+                              {icon}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-card-foreground">{tx.title}</p>
+                              <p className="text-sm text-muted-foreground">{format(new Date(tx.date.seconds * 1000), "PPpp")}</p>
+                            </div>
+                          </div>
+                          <div className="text-right flex flex-col items-end gap-1">
+                            <p className={`font-semibold text-lg ${color}`}>{amountSign}{formatCurrency(tx.amount)}</p>
+                            <div>
+                              {tx.status === 'pending' && <StatusBadge variant="warning">Pending</StatusBadge>}
+                              {tx.status === 'completed' && <StatusBadge variant="success">Completed</StatusBadge>}
+                              {tx.status === 'rejected' && <StatusBadge variant="danger">Rejected</StatusBadge>}
+                            </div>
+                          </div>
+                        </TradingCard>
+                      )
+                    })}
+                  </div>
                 )}
             </CardContent>
         </Card>
