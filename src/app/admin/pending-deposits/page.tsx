@@ -18,7 +18,6 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Papa from 'papaparse';
 import { addEarning } from '@/lib/earnings';
-import { ensureDailyPromoCode } from '@/lib/promo';
 
 
 interface Deposit {
@@ -363,7 +362,7 @@ export default function AdminPendingDepositsPage() {
                     });
                 }
 
-                await ensureDailyPromoCode(deposit.userId);
+                // Promo system disabled: no promo generation on deposit completion.
             } else { // Rejected
                  const batch = writeBatch(db);
                  batch.update(depositRef, { status: 'rejected', rejectedAt: serverTimestamp() });

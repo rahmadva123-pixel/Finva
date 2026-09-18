@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebase";
-import { redeemPromoCode, ensureDailyPromoCode } from "@/lib/promo";
 interface UserData {
   username?: string;
   firstName?: string;
@@ -40,36 +39,6 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const [promoStatus, setPromoStatus] = useState<any>(null);
   const [promoTimer, setPromoTimer] = useState<string>("");
-  // Promo timer logic
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    async function fetchPromoStatus() {
-      if (!user) return;
-      const status = await ensureDailyPromoCode(user.uid);
-      setPromoStatus(status);
-      if (!status.eligible && status.nextAvailableAtMs) {
-        updateTimer(status.nextAvailableAtMs);
-        timer = setInterval(() => updateTimer(status.nextAvailableAtMs!), 1000);
-      } else {
-        setPromoTimer("");
-      }
-    }
-    function updateTimer(targetMs: number) {
-      const now = Date.now();
-      const diff = targetMs - now;
-      if (diff <= 0) {
-        setPromoTimer("Promo available!");
-        clearInterval(timer);
-        return;
-      }
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      setPromoTimer(`${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`);
-    }
-    fetchPromoStatus();
-    return () => clearInterval(timer);
-  }, [user]);
 
 interface CurrencySettings {
   symbol: string;
@@ -286,27 +255,7 @@ interface CurrencySettings {
     }
   };
 
-  const handleRedeemFromDashboard = async () => {
-    if (!user || !redeemCode.trim()) return;
-
-    setRedeemingCode(true);
-    try {
-      const result = await redeemPromoCode(user.uid, redeemCode);
-      setRedeemCode("");
-      toast({
-        title: "Promo redeemed",
-        description: `${formatCurrency(result.rewardAmount)} has been added to your wallet.`,
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Redeem failed",
-        description: error?.message || "Please check your promo code and try again.",
-      });
-    } finally {
-      setRedeemingCode(false);
-    }
-  };
+  const handleRedeemFromDashboard = async () => { /* promo system removed */ };
 
   return (
     <DashboardLayout>
@@ -429,40 +378,37 @@ interface CurrencySettings {
 
         <Card className="overflow-hidden rounded-2xl border shadow-sm">
           <CardContent className="space-y-4 p-4 sm:p-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center justify-between">
               <div>
                 <div className="mb-2 inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
-                  Redeem Code
+                  Markets
                 </div>
-                <h2 className="text-xl font-bold">Paste your promo code here</h2>
-                <p className="text-sm text-muted-foreground">
-                  Get your promo code from <span className="font-medium">Bonus</span> or from <span className="font-medium">Notifications</span>, then redeem it here.
-                </p>
-                {promoTimer && (
-                  <div className="mt-2 text-sm font-semibold text-primary">
-                    Next promo available in: <span className="font-mono">{promoTimer}</span>
-                  </div>
-                )}
+                <h2 className="text-xl font-bold">Top Markets</h2>
+                <p className="text-sm text-muted-foreground">Quick access to market tickers and a summary of top movers.</p>
               </div>
-              <div className="flex flex-col gap-2 sm:flex-row">
+              <div>
                 <Button asChild size="sm" variant="outline" className="rounded-xl">
-                  <Link href="/dashboard/bonus/daily">Get Code from Bonus</Link>
+                  <Link href="/markets">Open Markets</Link>
                 </Button>
-                
-                {/* VIP button removed: Monthly VIP feature disabled for now */}
               </div>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-[1fr_auto]">
-              <Input
-                value={redeemCode}
-                onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
-                placeholder="Paste promo code here"
-                className="min-h-11 rounded-xl"
-              />
-              <Button onClick={handleRedeemFromDashboard} disabled={redeemingCode || !redeemCode.trim()} className="min-h-11 rounded-xl">
-                {redeemingCode ? "Redeeming..." : "Redeem Promo Code"}
-              </Button>
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              <div className="rounded-lg bg-background/60 p-3 text-center">
+                <div className="text-sm text-muted-foreground">BTC/USDT</div>
+                <div className="mt-1 font-semibold text-foreground">$27,500</div>
+                <div className="text-xs text-emerald-500">+2.4%</div>
+              </div>
+              <div className="rounded-lg bg-background/60 p-3 text-center">
+                <div className="text-sm text-muted-foreground">ETH/USDT</div>
+                <div className="mt-1 font-semibold text-foreground">$1,800</div>
+                <div className="text-xs text-red-500">-1.2%</div>
+              </div>
+              <div className="rounded-lg bg-background/60 p-3 text-center">
+                <div className="text-sm text-muted-foreground">SOL/USDT</div>
+                <div className="mt-1 font-semibold text-foreground">$30.12</div>
+                <div className="text-xs text-emerald-500">+0.8%</div>
+              </div>
             </div>
           </CardContent>
         </Card>

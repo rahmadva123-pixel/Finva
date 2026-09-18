@@ -104,9 +104,17 @@ function LoginForm() {
           return;
       }
 
-      const userDocRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-      const userData = userDoc.data();
+      let userData: any = null;
+      try {
+        if (db) {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userDocRef);
+          userData = userDoc.exists() ? userDoc.data() : null;
+        }
+      } catch (udErr) {
+        console.warn('Could not load user doc during login; continuing without user data.', udErr);
+        userData = null;
+      }
 
       if (userData && userData.disabled) {
         await auth.signOut();

@@ -20,7 +20,7 @@ interface MobileFooterMenuItem {
 const defaultNavItems: MobileFooterMenuItem[] = [
     { label: 'Home', icon: 'LayoutDashboard', href: '/dashboard' },
     { label: 'Deposit', icon: 'ArrowDownCircle', href: '/dashboard/finance/deposit' },
-    { label: 'Promo', icon: 'Gift', href: '/dashboard/bonus/daily' },
+    { label: 'Markets', icon: 'TrendingUp', href: '/markets' },
     { label: 'Referral', icon: 'Users', href: '/dashboard/referral' },
 ];
 

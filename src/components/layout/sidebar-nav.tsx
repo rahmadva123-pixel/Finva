@@ -51,30 +51,12 @@ interface NavItemConfig {
 }
 
 const allNavItemsConfig: Omit<NavItemConfig, 'label'>[] = [
-  { key: 'finance', href: '/dashboard/finance', icon: Landmark, dropdown: true, 
-    subItems: [
-        { href: '/dashboard/finance/deposit', label: 'Deposit' },
-        { href: '/dashboard/finance/withdraw', label: 'Withdraw' },
-        { href: '/dashboard/finance/send', label: 'Send' },
-        { href: '/dashboard/finance/wallet', label: 'Wallet' },
-        { href: '/dashboard/digital-wallet', label: 'Digital Wallet'},
-        { href: '/dashboard/swap', label: 'Swap Currency'},
-        { href: '/dashboard/finance/history', label: 'History' },
-    ]
-  },
-  {
-    key: 'bonus', href: '/dashboard/bonus', icon: Gift, dropdown: true,
-    subItems: [
-        { href: '/dashboard/bonus/task', label: 'Task & Earn'},
-        { href: '/dashboard/bonus/daily', label: 'Promo Code'},
-    { href: '/dashboard/bonus/history', label: 'History'},
-    { href: '/dashboard/referral/refreshment', label: 'Refreshment Bonus' },
-    ]
-  },
-  { key: 'rewards', href: '/dashboard/rewards', icon: Award, dropdown: false },
-  { key: 'shareAndEarn', href: '/dashboard/share-earn', icon: Share2, dropdown: false },
-  { key: 'referral', href: '/dashboard/referral', icon: Users, dropdown: false },
-  { key: 'identityVerification', href: '/verification', icon: ShieldCheck, dropdown: false },
+  { key: 'markets', href: '/markets', icon: TrendingUp, dropdown: false },
+  { key: 'trade', href: '/trade', icon: DollarSign, dropdown: false },
+  { key: 'orders', href: '/dashboard/finance/history', icon: Repeat, dropdown: false },
+  { key: 'wallet', href: '/dashboard/finance/wallet', icon: Wallet, dropdown: false },
+  { key: 'activity', href: '/dashboard/finance/history', icon: LayoutDashboard, dropdown: false },
+  { key: 'support', href: '/dashboard/support', icon: HelpCircle, dropdown: false },
   { key: 'about', href: '/about', icon: Info, dropdown: false },
 ];
 
@@ -240,7 +222,7 @@ export function SidebarNav() {
   };
 
   return (
-    <aside className="w-full h-full flex flex-col bg-card text-card-foreground" style={sidebarStyle}>
+    <aside className="w-full h-full flex flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex-grow flex flex-col p-4 space-y-4 pt-8 overflow-y-auto">
         <Link href="/dashboard/profile" className="p-3 bg-black/20 rounded-lg block hover:bg-black/30 transition-colors">
             <div className="flex items-center gap-3">
@@ -253,8 +235,8 @@ export function SidebarNav() {
                     <p className="text-xs text-white/70">Userid: {user?.uid.slice(0,8).toUpperCase() || 'VWLWUNIC'}</p>
                 </div>
             </div>
-             <div className="mt-4 p-4 rounded-lg bg-black/20 border border-white/10 text-white">
-                <h4 className="text-sm font-bold text-white/80 mb-2">Account Balance</h4>
+            <div className="mt-4 p-4 rounded-lg bg-sidebar/30 border border-sidebar-border text-sidebar-foreground">
+              <h4 className="text-sm font-semibold text-sidebar-foreground mb-2">Account Balance</h4>
                 <div className="space-y-1 text-sm">
                     <div className="flex justify-between items-center gap-2">
                         <span>{formatCurrency(balance)}</span>
@@ -354,6 +336,18 @@ export function SidebarNav() {
             </Link>
         </Button>
         <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-white/80 hover:bg-black/20 hover:text-white" onClick={handleLogout}>
+            <LogOut className="h-4 w-4" />
+            <span>Sign out</span>
+        </Button>
+      </div>
+      <div className="p-4 border-t border-sidebar-border space-y-1">
+        <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-sidebar-foreground hover:bg-sidebar/20 hover:text-sidebar-foreground" asChild>
+            <Link href="/dashboard/support">
+                <HelpCircle className="h-4 w-4" />
+                <span>Support</span>
+            </Link>
+        </Button>
+        <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-sidebar-foreground hover:bg-sidebar/20 hover:text-sidebar-foreground" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />
             <span>Sign out</span>
         </Button>

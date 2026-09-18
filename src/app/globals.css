@@ -4,31 +4,42 @@
 @tailwind utilities;
 
 @layer base {
+  /* Light theme defaults */
   :root {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 15%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 142 76% 56%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 25%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 142 76% 56%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 217 33% 22%;
-    --input: 217 33% 17%;
-    --ring: 142 76% 56%;
-    --chart-1: 142 76% 56%;
-    --chart-2: 210 40% 98%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    /* Trading palette (light) */
+    --background: #F8FAFC; /* Light Background */
+    --foreground: #0F172A; /* Dark Navy for text */
+    --card: #FFFFFF; /* White cards */
+    --card-foreground: #0F172A;
+    --popover: #FFFFFF;
+    --popover-foreground: #0F172A;
+    --primary: #2563EB; /* Primary Blue */
+    --primary-foreground: #FFFFFF;
+    --secondary: #38BDF8; /* Light Blue */
+    --secondary-foreground: #0F172A;
+    --muted: #F1F5F9;
+    --muted-foreground: #94A3B8;
+    --accent: #2563EB;
+    --accent-foreground: #FFFFFF;
+    --destructive: #DC2626;
+    --destructive-foreground: #FFFFFF;
+    --success: #16A34A;
+    --warning: #F59E0B;
+    --border: #E2E8F0;
+    --input: #FFFFFF;
+    --ring: #2563EB;
+    --chart-1: #2563EB;
+    --chart-2: #38BDF8;
+    --chart-3: #16A34A;
+    --chart-4: #F59E0B;
+    --chart-5: #DC2626;
+    --sidebar-background: #0F172A;
+    --sidebar-foreground: #FFFFFF;
+    --sidebar-primary: #2563EB;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #38BDF8;
+    --sidebar-accent-foreground: #0F172A;
+    --sidebar-border: rgba(255,255,255,0.04);
     --radius: 0.5rem;
 
     --bg-card-image: var(--bg-card-image-url, none);
@@ -36,32 +47,43 @@
     --bg-dialog-image: var(--bg-dialog-image-url, none);
     --bg-dialog-overlay: var(--bg-dialog-overlay-color, transparent);
   }
- 
+
+  /* Dark theme overrides */
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 15%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 142 76% 56%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 25%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 142 76% 56%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 217 33% 22%;
-    --input: 217 33% 17%;
-    --ring: 142 76% 56%;
-    --chart-1: 142 76% 56%;
-    --chart-2: 210 40% 98%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    /* Trading palette (dark) */
+    --background: #020617; /* Dark Background */
+    --foreground: #FFFFFF;
+    --card: #0F172A; /* Dark navy cards */
+    --card-foreground: #FFFFFF;
+    --popover: #071020;
+    --popover-foreground: #FFFFFF;
+    --primary: #2563EB;
+    --primary-foreground: #FFFFFF;
+    --secondary: #38BDF8;
+    --secondary-foreground: #0F172A;
+    --muted: #0b1220;
+    --muted-foreground: #94A3B8;
+    --accent: #2563EB;
+    --accent-foreground: #FFFFFF;
+    --destructive: #DC2626;
+    --destructive-foreground: #FFFFFF;
+    --success: #16A34A;
+    --warning: #F59E0B;
+    --border: #071430;
+    --input: #071020;
+    --ring: #2563EB;
+    --chart-1: #2563EB;
+    --chart-2: #38BDF8;
+    --chart-3: #16A34A;
+    --chart-4: #F59E0B;
+    --chart-5: #DC2626;
+    --sidebar-background: #020617;
+    --sidebar-foreground: #FFFFFF;
+    --sidebar-primary: #2563EB;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #38BDF8;
+    --sidebar-accent-foreground: #0F172A;
+    --sidebar-border: rgba(255,255,255,0.04);
   }
 }
  

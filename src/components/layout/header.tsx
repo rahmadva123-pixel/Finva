@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bell, User, LogOut, MoreVertical, Wallet, Landmark, Menu, CheckCircle, Clock, XCircle, Gift, TrendingUp, CircleDollarSign, Phone, MessageSquare, ArrowRight, LayoutDashboard } from 'lucide-react';
+import { Bell, User, LogOut, MoreVertical, Wallet, Landmark, Menu, CheckCircle, Clock, XCircle, Gift, TrendingUp, CircleDollarSign, Phone, MessageSquare, ArrowRight, LayoutDashboard, Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -32,7 +32,6 @@ import * as LucideIcons from "lucide-react";
 import { cn } from '@/lib/utils';
 import { usePreloader } from '../providers/preloader-provider';
 import { normalizeBrandText } from '@/lib/branding';
-import { ensureDailyPromoCode } from '@/lib/promo';
 
 interface SubMenuItem {
     id: string;
@@ -138,21 +137,6 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
     fetchCurrencySettings();
 
     if (user) {
-        try {
-            const LAST_PROMO_CHECK_KEY = 'lastPromoCheckMs';
-            const THROTTLE_MS = 10 * 60 * 1000; // 10 minutes
-            const last = Number(window.localStorage.getItem(LAST_PROMO_CHECK_KEY) || 0);
-            const now = Date.now();
-            if (isNaN(last) || now - last >= THROTTLE_MS) {
-                void ensureDailyPromoCode(user.uid)
-                  .then(() => window.localStorage.setItem(LAST_PROMO_CHECK_KEY, String(Date.now())))
-                  .catch((error) => {
-                    console.error("Failed to prepare promo code:", error);
-                  });
-            }
-        } catch (e) {
-            // localStorage may be unavailable in some environments — ignore and continue
-        }
         const userDocRef = doc(db, "users", user.uid);
         const unsubscribeUser = onSnapshot(userDocRef, (doc) => {
             if (doc.exists()) {
@@ -225,11 +209,10 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
     return currency.position === 'left' ? `${currency.symbol}${value}` : `${value}${currency.symbol}`;
   }
 
-  if (appLoading) return null;
+    if (appLoading) return null;
 
-
-  return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-2 border-b border-border/50 bg-card/50 px-2 sm:px-6 backdrop-blur-sm">
+    return (
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-2 border-b border-sidebar-border bg-sidebar px-3 sm:px-6">
         <div className="flex items-center gap-2">
             { user && onMobileNavToggle ? (
                 <Button variant="ghost" size="icon" className="sm:hidden" onClick={onMobileNavToggle}>
@@ -239,7 +222,7 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
              ) : (
                 <div className="sm:hidden w-8"></div> // Placeholder to align logo
              )}
-            <div className="flex items-center gap-2 text-foreground">
+            <div className="flex items-center gap-3 text-sidebar-foreground">
                 {templateLoading ? (
                     <div className="h-8 w-32 bg-muted/50 rounded-md animate-pulse"></div>
                 ) : (
@@ -248,14 +231,20 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
                             <Image src={logoUrl} alt={logoText} width={logoWidth} height={logoHeight} />
                         ) : null}
                         {(!logoUrl || showLogoTextWithImage) && (
-                            <span className="text-xl font-bold font-headline">{logoText}</span>
+                            <span className="text-lg font-semibold font-headline tracking-tight">{logoText}</span>
                         )}
                     </>
                 )}
             </div>
         </div>
 
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-4">
+            <div className="relative">
+                <input
+                    placeholder="Search markets, symbols or orders"
+                    className="w-64 bg-card border border-border rounded-md px-3 py-2 text-sm text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+            </div>
             {headerMenuItems.map(item => {
                 const Icon = (LucideIcons as any)[item.icon || ''] || null;
                 const hasSubItems = item.subItems && item.subItems.length > 0;
@@ -289,7 +278,7 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
                 return (
                     <Button key={item.id} variant="ghost" asChild className="text-sm font-medium text-muted-foreground">
                         <Link href={item.href} className="flex items-center gap-2">
-                            {Icon && <Icon className="h-4 w-4" />}
+                            {Icon && <Icon className="h-4 w-4 text-sidebar-foreground" />}
                             {item.label}
                         </Link>
                     </Button>
@@ -297,19 +286,29 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
             })}
         </nav>
 
-      <div className="flex items-center gap-1 sm:gap-2">
-        <LanguageSwitcher className={cn(user && "hidden sm:inline-flex")} />
+            <div className="flex items-center gap-1 sm:gap-2">
+                <LanguageSwitcher className={cn(user && "hidden sm:inline-flex")} />
+                {/* Theme toggle */}
+                <Button variant="ghost" size="icon" onClick={() => {
+                    try {
+                        const isDark = document.documentElement.classList.toggle('dark');
+                        window.localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                    } catch(e) { console.warn(e); }
+                }} aria-label="Toggle theme">
+                    {document?.documentElement?.classList?.contains && document.documentElement.classList.contains('dark') ? <Sun className="h-4 w-4 text-sidebar-foreground" /> : <Moon className="h-4 w-4 text-sidebar-foreground" />}
+                </Button>
         
         { authLoading ? (
             <div className="h-8 w-20 bg-muted rounded-md animate-pulse"></div>
         ) : user ? (
           <>
-             <Button variant="outline" className="items-center gap-2 px-2 sm:px-3" asChild>
-                <Link href="/dashboard/finance/wallet">
-                    <MainWalletIcon className="h-5 w-5 text-primary" />
-                    <span className="font-semibold hidden sm:inline">
-                       {formatCurrency(balance)}
-                    </span>
+             <Button variant="outline" className="items-center gap-3 px-3 py-2 rounded-md bg-card border border-border shadow-sm" asChild>
+                <Link href="/dashboard/finance/wallet" className="flex items-center gap-3">
+                    <MainWalletIcon className="h-6 w-6 text-primary" />
+                    <div className="flex flex-col leading-tight">
+                        <span className="text-sm text-muted-foreground">Balance</span>
+                        <span className="text-sm font-semibold text-card-foreground">{formatCurrency(balance)}</span>
+                    </div>
                 </Link>
             </Button>
 

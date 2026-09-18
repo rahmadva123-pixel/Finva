@@ -83,8 +83,8 @@ export default function AdminBonusPage() {
     const [dailyBonusEnd, setDailyBonusEnd] = useState('');
     const [dailyBonusHistory, setDailyBonusHistory] = useState<BonusTransaction[]>([]);
 
-    // Promo Code State
-    const [promoCodeEnabled, setPromoCodeEnabled] = useState(true);
+    // Promo Code State (disabled)
+    const [promoCodeEnabled, setPromoCodeEnabled] = useState(false);
     const [promoCodeMinDeposit, setPromoCodeMinDeposit] = useState('495');
     const [promoCodeRewardPercentage, setPromoCodeRewardPercentage] = useState('1');
 
@@ -606,7 +606,7 @@ export default function AdminBonusPage() {
                         <TabsTrigger value="signup"><Gift className="mr-2" />Signup</TabsTrigger>
                         <TabsTrigger value="task"><ClipboardEdit className="mr-2" />Tasks</TabsTrigger>
                         <TabsTrigger value="approvals"><Check className="mr-2" />Approvals</TabsTrigger>
-                        <TabsTrigger value="daily"><CalendarClock className="mr-2" />Promo</TabsTrigger>
+                        {/* Promo tab removed */}
                         <TabsTrigger value="interest"><TrendingUp className="mr-2" />Interest</TabsTrigger>
                         <TabsTrigger value="history"><History className="mr-2" />History</TabsTrigger>
                           {/* VIP tab removed while feature is disabled */}
@@ -764,78 +764,7 @@ export default function AdminBonusPage() {
                             </CardContent>
                         </Card>
                     </TabsContent>
-                    <TabsContent value="daily">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Daily Promo Code Setup</CardTitle>
-                                <CardDescription>Eligible users receive their first code 24 hours after a qualifying deposit, and each next unique code arrives 24 hours after the previous one.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                               <div className="flex items-center justify-between p-4 border rounded-md">
-                                    <Label htmlFor="promo-code-enabled">Enable Daily Promo Code</Label>
-                                    <Switch id="promo-code-enabled" checked={promoCodeEnabled} onCheckedChange={setPromoCodeEnabled} />
-                                </div>
-                                {promoCodeEnabled && (
-                                <>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="promo-min-deposit">Minimum Completed Deposit ($)</Label>
-                                        <Input id="promo-min-deposit" type="number" placeholder="e.g., 495" value={promoCodeMinDeposit} onChange={e => setPromoCodeMinDeposit(e.target.value)} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="promo-reward-percentage">Reward Percentage (%)</Label>
-                                        <Input id="promo-reward-percentage" type="number" step="0.1" placeholder="e.g., 1" value={promoCodeRewardPercentage} onChange={e => setPromoCodeRewardPercentage(e.target.value)} />
-                                    </div>
-                                </div>
-                                 <p className="text-sm text-muted-foreground">Example: users with completed deposits of at least $495 receive their first unique code after 24 hours, then each next code becomes available 24 hours after the last issued code.</p>
-                                </>
-                                )}
-                            </CardContent>
-                        </Card>
-                         <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <div>
-                                    <CardTitle>Promo Redemption History</CardTitle>
-                                    <CardDescription>A list of users who have redeemed their daily promo reward.</CardDescription>
-                                </div>
-                                {dailyBonusHistory.length > 0 && (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="outline"><Download className="mr-2 h-4 w-4"/> Export</Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent>
-                                            <DropdownMenuItem onSelect={() => downloadCSV('daily')}>Download CSV</DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={() => downloadPDF('daily')}>Download PDF</DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                )}
-                            </CardHeader>
-                            <CardContent>
-                                {dailyBonusHistory.length > 0 ? (
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>User Email</TableHead>
-                                                <TableHead>Amount</TableHead>
-                                                <TableHead>Date</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {dailyBonusHistory.map(item => (
-                                                <TableRow key={item.id}>
-                                                    <TableCell>{item.userEmail}</TableCell>
-                                                    <TableCell>${(item.amount || 0).toFixed(2)}</TableCell>
-                                                    <TableCell>{item.date?.seconds ? format(new Date(item.date.seconds * 1000), 'PPp') : 'N/A'}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                ) : (
-                                    <p className="text-center text-muted-foreground p-8">No promo rewards have been redeemed yet.</p>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
+                    {/* Promo management removed */}
                     <TabsContent value="interest">
                         <Card>
                             <CardHeader>

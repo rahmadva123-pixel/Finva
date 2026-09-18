@@ -54,7 +54,7 @@ interface CompletedDepositInfo {
 }
 
 const DEFAULT_PROMO_SETTINGS: PromoCodeSettings = {
-  promoCodeEnabled: true,
+  promoCodeEnabled: false,
   promoCodeMinDeposit: 495,
   promoCodeRewardPercentage: 1,
 };
@@ -84,22 +84,8 @@ const buildPromoCode = (userId: string, issuedAtMs: number) => {
 };
 
 export async function getPromoCodeSettings(): Promise<PromoCodeSettings> {
-  if (!db) return DEFAULT_PROMO_SETTINGS;
-
-  try {
-    const settingsSnap = await getDoc(doc(db, "settings", "bonus"));
-    if (!settingsSnap.exists()) return DEFAULT_PROMO_SETTINGS;
-
-    const data = settingsSnap.data();
-    return {
-      promoCodeEnabled: data.promoCodeEnabled ?? DEFAULT_PROMO_SETTINGS.promoCodeEnabled,
-      promoCodeMinDeposit: Number(data.promoCodeMinDeposit ?? DEFAULT_PROMO_SETTINGS.promoCodeMinDeposit),
-      promoCodeRewardPercentage: Number(data.promoCodeRewardPercentage ?? DEFAULT_PROMO_SETTINGS.promoCodeRewardPercentage),
-    };
-  } catch (error) {
-    console.error("Failed to load promo code settings:", error);
-    return DEFAULT_PROMO_SETTINGS;
-  }
+  // Promo system disabled globally for this deployment. Return disabled settings.
+  return DEFAULT_PROMO_SETTINGS;
 }
 
 async function getCompletedDepositInfo(userId: string, minDeposit: number): Promise<CompletedDepositInfo> {
@@ -268,238 +254,15 @@ async function notifyPromoCode(userId: string, promoCode: PromoCodeRecord) {
 }
 
 export async function ensureDailyPromoCode(userId: string): Promise<PromoCodeStatus> {
-  if (!db || !userId) {
-    return {
-      eligible: false,
-      depositTotal: 0,
-      settings: DEFAULT_PROMO_SETTINGS,
-      reason: "Promo service is currently unavailable.",
-    };
-  }
-
-  const settings = await getPromoCodeSettings();
-  const depositInfo = await getCompletedDepositInfo(userId, settings.promoCodeMinDeposit);
-  const depositTotal = depositInfo.total;
-
-  const customPromoSettings = { ...settings };
-
-  // Adjust promo reward percentage based on referral progress
-  try {
-    const referralPercent = await getReferralDailyPercentage(userId);
-    customPromoSettings.promoCodeRewardPercentage = referralPercent;
-  } catch (e) {
-    // fallback to default settings
-  }
-
-  if (!customPromoSettings.promoCodeEnabled) {
-    return {
-      eligible: false,
-      depositTotal,
-      settings: customPromoSettings,
-      reason: "Promo rewards are currently disabled.",
-    };
-  }
-
-  if (depositTotal < customPromoSettings.promoCodeMinDeposit || !depositInfo.qualifyingAtMs) {
-    return {
-      eligible: false,
-      depositTotal,
-      settings: customPromoSettings,
-      reason: `Deposit at least ${formatDollar(customPromoSettings.promoCodeMinDeposit)} to unlock the 24-hour promo reward cycle.`,
-      qualifiedAtMs: depositInfo.qualifyingAtMs,
-    };
-  }
-
-  const nowMs = Date.now();
-  let promoCodes = await getUserPromoCodes(userId);
-  await expireOutdatedPromoCodes(promoCodes, nowMs);
-
-  const activeCode = promoCodes.find(
-    (promoCode) => promoCode.status === "active" && Number(promoCode.expiresAtMs || 0) > nowMs
-  );
-
-  if (activeCode) {
-    return {
-      eligible: true,
-      depositTotal,
-      settings,
-      data: activeCode,
-      nextAvailableAtMs: activeCode.expiresAtMs,
-      qualifiedAtMs: depositInfo.qualifyingAtMs,
-    };
-  }
-
-  const latestCode = promoCodes[0];
-  const nextAvailableAtMs = latestCode
-    ? Number(latestCode.issuedAtMs || 0) + PROMO_INTERVAL_MS
-    : depositInfo.qualifyingAtMs + PROMO_INTERVAL_MS;
-
-  if (nowMs < nextAvailableAtMs) {
-    return {
-      eligible: false,
-      depositTotal,
-      settings,
-      reason: latestCode
-        ? "Your next unique promo code will be available 24 hours after the last code was issued."
-        : "Your first unique promo code will be available 24 hours after your qualifying deposit.",
-      nextAvailableAtMs,
-      qualifiedAtMs: depositInfo.qualifyingAtMs,
-    };
-  }
-
-  const creationResult = await createPromoCodeForUser(
-    userId,
-    depositTotal,
-    customPromoSettings,
-    depositInfo.qualifyingAtMs,
-    Number(latestCode?.issuedAtMs || 0)
-  );
-
-  if (creationResult.created && creationResult.data) {
-    await notifyPromoCode(userId, creationResult.data);
-    return {
-      eligible: true,
-      depositTotal,
-      settings,
-      data: creationResult.data,
-      nextAvailableAtMs: creationResult.data.expiresAtMs,
-      qualifiedAtMs: depositInfo.qualifyingAtMs,
-    };
-  }
-
-  promoCodes = await getUserPromoCodes(userId);
-  const refreshedActiveCode = promoCodes.find(
-    (promoCode) => promoCode.status === "active" && Number(promoCode.expiresAtMs || 0) > Date.now()
-  );
-
-  if (refreshedActiveCode) {
-    return {
-      eligible: true,
-      depositTotal,
-      settings,
-      data: refreshedActiveCode,
-      nextAvailableAtMs: refreshedActiveCode.expiresAtMs,
-      qualifiedAtMs: depositInfo.qualifyingAtMs,
-    };
-  }
-
+  // Promo service has been disabled for this deployment. Return a disabled status.
   return {
     eligible: false,
-    depositTotal,
-    settings,
-    reason: "Your next unique promo code is not ready yet.",
-    nextAvailableAtMs: creationResult.waitUntilMs,
-    qualifiedAtMs: depositInfo.qualifyingAtMs,
+    depositTotal: 0,
+    settings: DEFAULT_PROMO_SETTINGS,
+    reason: "Promo rewards have been disabled.",
   };
 }
 
 export async function redeemPromoCode(userId: string, enteredCode: string) {
-  if (!db || !userId) {
-    throw new Error("Promo service is currently unavailable.");
-  }
-
-  const normalizedCode = normalizePromoCode(enteredCode);
-  if (!normalizedCode) {
-    throw new Error("Please enter the promo code from your notification.");
-  }
-
-  const settings = await getPromoCodeSettings();
-  if (!settings.promoCodeEnabled) {
-    throw new Error("Promo rewards are currently disabled.");
-  }
-
-  const depositTotal = await getCompletedDepositTotal(userId);
-  if (depositTotal < settings.promoCodeMinDeposit) {
-    throw new Error(`A minimum completed deposit of ${formatDollar(settings.promoCodeMinDeposit)} is required.`);
-  }
-
-  const promoQuery = query(
-    collection(db, "promoCodes"),
-    where("userId", "==", userId),
-    where("code", "==", normalizedCode),
-    limit(1)
-  );
-  const promoSnapshot = await getDocs(promoQuery);
-
-  if (promoSnapshot.empty) {
-    throw new Error("This promo code is invalid for your account.");
-  }
-
-  const promoDoc = promoSnapshot.docs[0];
-  const promoData = promoDoc.data() as PromoCodeRecord;
-  if (promoData.status === "redeemed") {
-    throw new Error("This promo code has already been redeemed.");
-  }
-
-  if (promoData.status === "expired" || Number(promoData.expiresAtMs || 0) <= Date.now()) {
-    throw new Error("This promo code has expired. Please wait for your next unique code.");
-  }
-
-  const rewardPercentage = Number(promoData.rewardPercentage ?? settings.promoCodeRewardPercentage);
-  const rewardBase = Number(promoData.eligibleDepositTotal ?? depositTotal);
-  const rewardAmount = roundToCents(promoData.rewardAmount ?? (rewardBase * rewardPercentage) / 100);
-
-  if (rewardAmount <= 0) {
-    throw new Error("This promo code does not have a valid reward amount.");
-  }
-
-  await runTransaction(db, async (transaction) => {
-    const codeRef = doc(db, "promoCodes", promoDoc.id);
-    const userRef = doc(db, "users", userId);
-    const earningRulesRef = doc(db, "settings", "earningRules");
-
-    const [freshCodeSnap, userDoc, earningRulesDoc] = await Promise.all([
-      transaction.get(codeRef),
-      transaction.get(userRef),
-      transaction.get(earningRulesRef),
-    ]);
-
-    if (!freshCodeSnap.exists()) {
-      throw new Error("Promo code not found.");
-    }
-
-    const freshCodeData = freshCodeSnap.data() as PromoCodeRecord;
-    if (freshCodeData.status === "redeemed") {
-      throw new Error("This promo code has already been redeemed.");
-    }
-
-    if (freshCodeData.status === "expired" || Number(freshCodeData.expiresAtMs || 0) <= Date.now()) {
-      throw new Error("This promo code has expired. Please wait for your next unique code.");
-    }
-
-    await addEarning(transaction, userId, rewardAmount, userDoc, earningRulesDoc);
-
-    transaction.update(codeRef, {
-      status: "redeemed",
-      redeemedAt: serverTimestamp(),
-      rewardAmount,
-    });
-
-    const bonusRef = doc(collection(db, "bonusTransactions"));
-    transaction.set(bonusRef, {
-      userId,
-      type: "promo",
-      amount: rewardAmount,
-      date: serverTimestamp(),
-      description: `Promo code reward (${rewardPercentage}% on ${formatDollar(rewardBase)})`,
-      promoCode: normalizedCode,
-    });
-  });
-
-  await addDoc(collection(db, "notifications"), {
-    userId,
-    title: "Promo reward added",
-    description: `${formatDollar(rewardAmount)} has been added to your wallet after redeeming code ${normalizedCode}.`,
-    isRead: false,
-    createdAt: serverTimestamp(),
-    link: "/dashboard/finance/history",
-    type: "promoBonus",
-  });
-
-  return {
-    rewardAmount,
-    rewardPercentage,
-    rewardBase,
-    code: normalizedCode,
-  };
+  throw new Error("Promo system has been disabled.");
 }
