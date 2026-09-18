@@ -4,6 +4,7 @@
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FinancialStatCard } from '@/components/ui/financial-stat-card';
 import { useAuth } from "@/hooks/use-auth";
 import { db } from "@/lib/firebase";
 import { collection, doc, getDoc, onSnapshot, query, where, getDocs, orderBy, limit } from "firebase/firestore";
@@ -64,18 +65,7 @@ interface DailyData {
     'Pool Return': number;
 }
 
-const StatCard = ({ title, value, icon: Icon, description, descriptionColor }: { title: string, value: string, icon: React.ElementType, description?: string, descriptionColor?: string }) => (
-    <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            <Icon className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-            <div className="text-2xl font-bold">{value}</div>
-            {description && <p className={`text-xs text-muted-foreground ${descriptionColor}`}>{description}</p>}
-        </CardContent>
-    </Card>
-);
+// Use `FinancialStatCard` for consistent trading-style stat presentation
 
 const ChartCard = ({ title, data, currency, chartConfig, type = 'bar', description, loading, headerContent }: { title: string, data: any[], currency?: CurrencySettings, chartConfig: ChartConfig, type?: 'bar' | 'line', description?: React.ReactNode, loading: boolean, headerContent?: React.ReactNode }) => {
     
@@ -400,17 +390,11 @@ export default function WalletPage() {
                     <h1 className="text-3xl font-bold font-headline tracking-tight">Wallet Overview & Statistics</h1>
                     <p className="text-muted-foreground">A detailed overview of your balances, investments, and earnings.</p>
                 </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard title="Main Wallet" value={formatCurrency(stats.mainWallet)} icon={Wallet} />
-                    <StatCard title="Total Earnings" value={formatCurrency(stats.totalEarning)} icon={TrendingUp} />
-                    <StatCard title="Total Deposits" value={formatCurrency(stats.approvedDeposits)} icon={Banknote} />
-                    <StatCard 
-                        title="Today's PNL" 
-                        value={`${pnlData.pnl24h >= 0 ? '+' : ''}${formatCurrency(pnlData.pnl24h)}`} 
-                        icon={pnlData.pnl24h >= 0 ? ArrowUp : ArrowDown} 
-                        description={`${pnlData.percentageChange >= 0 ? '+' : ''}${Math.abs(pnlData.percentageChange).toFixed(2)}% vs yesterday`}
-                        descriptionColor={pnlData.pnl24h >= 0 ? 'text-green-500' : 'text-red-500'}
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <FinancialStatCard title="Main Wallet" value={formatCurrency(stats.mainWallet)} hint="Available balance" />
+                    <FinancialStatCard title="Total Earnings" value={formatCurrency(stats.totalEarning)} hint="All sources" />
+                    <FinancialStatCard title="Total Deposits" value={formatCurrency(stats.approvedDeposits)} hint="Completed deposits" />
+                    <FinancialStatCard title="Today's PNL" value={`${pnlData.pnl24h >= 0 ? '+' : ''}${formatCurrency(pnlData.pnl24h)}`} hint={`${pnlData.percentageChange >= 0 ? '+' : ''}${Math.abs(pnlData.percentageChange).toFixed(2)}% vs yesterday`} />
                 </div>
                 
                  <div className="grid grid-cols-1 gap-6">
