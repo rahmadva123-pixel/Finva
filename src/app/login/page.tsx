@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { TradingCard } from '@/components/ui/trading-card';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AuthLayout } from "@/components/layout/auth-layout";
+// Intentionally render LoginForm directly to allow custom full-screen layout
 import { auth, db, sendVerificationEmailToUser } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -283,15 +283,15 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-    const [isClient, setIsClient] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-    return (
-        <AuthLayout>
-            {isClient ? <LoginForm /> : <Card className="h-[500px] animate-pulse bg-muted"></Card>}
-        </AuthLayout>
-    );
+  return (
+    <>
+      {isClient ? <LoginForm /> : <Card className="h-[500px] animate-pulse bg-muted"></Card>}
+    </>
+  );
 }
