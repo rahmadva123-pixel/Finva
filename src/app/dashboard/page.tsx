@@ -11,6 +11,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { FinancialStatCard } from '@/components/ui/financial-stat-card';
+import { MarketCard } from '@/components/ui/market-card';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebase";
@@ -283,48 +285,17 @@ interface CurrencySettings {
                   <p className="mt-1 break-all text-sm text-muted-foreground">{user?.email || "Unknown user"}</p>
                 </div>
 
-                <div className="rounded-2xl border border-primary/10 bg-background/80 p-4 shadow-sm sm:p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                        {currency.mainWalletName || "Main Wallet"}
-                      </p>
-                      <p className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">
-                        {loading ? "Loading balance..." : formatCurrency(userData?.balance || 0)}
-                      </p>
-                    </div>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRefreshBalance}
-                      disabled={refreshingBalance}
-                      className="min-h-9 rounded-xl px-3"
-                    >
-                      <RefreshCw className={`h-4 w-4 ${refreshingBalance ? "animate-spin" : ""}`} />
-                      <span className="ml-2 hidden sm:inline">{refreshingBalance ? "Refreshing..." : "Refresh"}</span>
-                    </Button>
-                  </div>
-
-                  <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10">
-                          <TrendingUp className="h-4 w-4 text-emerald-500" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground">Today's Earnings</p>
-                          <p className="text-base font-semibold text-foreground">
-                            {loading ? "Loading..." : formatCurrency(todayEarnings)}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="rounded-full bg-background px-2.5 py-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                        Today
-                      </span>
-                    </div>
-                  </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <FinancialStatCard
+                    title={currency.mainWalletName || 'Main Wallet'}
+                    value={loading ? 'Loading...' : formatCurrency(userData?.balance || 0)}
+                    hint={loading ? '' : 'Available balance'}
+                  />
+                  <FinancialStatCard
+                    title="Today's Earnings"
+                    value={loading ? 'Loading...' : formatCurrency(todayEarnings)}
+                    hint="Today"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
@@ -394,21 +365,9 @@ interface CurrencySettings {
             </div>
 
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              <div className="rounded-lg bg-background/60 p-3 text-center">
-                <div className="text-sm text-muted-foreground">BTC/USDT</div>
-                <div className="mt-1 font-semibold text-foreground">$27,500</div>
-                <div className="text-xs text-emerald-500">+2.4%</div>
-              </div>
-              <div className="rounded-lg bg-background/60 p-3 text-center">
-                <div className="text-sm text-muted-foreground">ETH/USDT</div>
-                <div className="mt-1 font-semibold text-foreground">$1,800</div>
-                <div className="text-xs text-red-500">-1.2%</div>
-              </div>
-              <div className="rounded-lg bg-background/60 p-3 text-center">
-                <div className="text-sm text-muted-foreground">SOL/USDT</div>
-                <div className="mt-1 font-semibold text-foreground">$30.12</div>
-                <div className="text-xs text-emerald-500">+0.8%</div>
-              </div>
+              <MarketCard symbol="BTC/USDT" price="$27,500" change={2.4} />
+              <MarketCard symbol="ETH/USDT" price="$1,800" change={-1.2} />
+              <MarketCard symbol="SOL/USDT" price="$30.12" change={0.8} />
             </div>
           </CardContent>
         </Card>
