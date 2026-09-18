@@ -28,8 +28,8 @@ const createHumanCheck = () => {
 function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
-  const [title, setTitle] = useState("Welcome Back");
-  const [subtitle, setSubtitle] = useState("Enter your credentials to access your account.");
+  const [title, setTitle] = useState("Access Your Trading Account");
+  const [subtitle, setSubtitle] = useState("Choose Email or Phone to sign in. You can also request a magic link to your inbox.");
   const [humanCheck, setHumanCheck] = useState(createHumanCheck);
   const [humanAnswer, setHumanAnswer] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -209,49 +209,49 @@ function LoginForm() {
           <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-indigo-500 to-purple-600 opacity-90"></div>
           <div className="mb-4 text-center ml-3">
             <div className="mx-auto h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">🔐</div>
-            <h2 className="text-2xl font-semibold mt-3">Welcome Back</h2>
-            <p className="text-sm text-muted-foreground">Sign in to continue to your trading dashboard.</p>
+            <h2 className="text-2xl font-semibold mt-3">{title}</h2>
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" aria-label="Login form">
             {errorMessage && <div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">{errorMessage}</div>}
 
             <div>
-              <label htmlFor="email" className="text-sm font-medium">Email Address</label>
+              <label htmlFor="email" className="text-sm font-medium">Email or Phone</label>
               <div className="mt-2 relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"><Mail className="h-4 w-4" /></div>
-                <Input id="email" name="email" type="email" placeholder="Enter your email address" defaultValue={isLocalDev ? localDevEmail : ""} className="pl-10 rounded-xl min-h-12 text-base" required />
+                <Input id="email" name="email" type="text" placeholder="you@company.com or +123456789" defaultValue={isLocalDev ? localDevEmail : ""} className="pl-10 rounded-xl min-h-12 text-base" required />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="text-sm font-medium">Password</label>
+              <label htmlFor="password" className="text-sm font-medium">Password or Passcode</label>
               <div className="mt-2 relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"><Lock className="h-4 w-4" /></div>
-                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" defaultValue={isLocalDev ? localDevPassword : ''} className="pl-10 rounded-xl min-h-12 text-base" required />
+                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password or passcode" defaultValue={isLocalDev ? localDevPassword : ''} className="pl-10 rounded-xl min-h-12 text-base" required />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center">
               <label className="inline-flex items-center text-sm">
                 <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="h-4 w-4 rounded border" />
-                <span className="ml-2">Remember me</span>
+                <span className="ml-2">Keep me signed in on this device</span>
               </label>
-              <Link href="/forgot-password" className="text-sm text-primary">Forgot Password?</Link>
             </div>
 
             <Button type="submit" className="w-full py-3 text-base bg-gradient-to-r from-indigo-600 via-violet-600 to-pink-600 text-white hover:opacity-95 active:scale-95 transition disabled:opacity-60" disabled={processing}>
-              {processing ? <><Loader2 className="h-4 w-4 animate-spin mr-2 inline" /> Signing in...</> : 'Sign In'}
+              {processing ? <><Loader2 className="h-4 w-4 animate-spin mr-2 inline" /> Unlocking...</> : 'Unlock Account'}
             </Button>
 
-            <div className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account? <Link href="/signup" className="text-primary">Create Account</Link>
+            <div className="mt-3 flex items-center justify-between text-sm">
+              <Link href="/forgot-password" className="text-primary">Trouble signing in? Reset</Link>
+              <Link href="/signup" className="text-muted-foreground">Open an Account</Link>
             </div>
 
-            <div className="text-center text-xs text-muted-foreground mt-2">Secure access to your trading account</div>
+            <div className="text-center text-xs text-muted-foreground mt-2">Two-factor enabled accounts may require extra verification</div>
           </form>
         </div>
       </div>
