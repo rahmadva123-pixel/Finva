@@ -441,30 +441,29 @@ export default function AdminPendingWithdrawsPage() {
                 ) : (
                     <div className="grid gap-6">
                         {withdrawals.map(w => (
-                            <Card key={w.id} className="bg-muted/30">
-                                <CardHeader>
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <CardTitle className="text-2xl">{formatCurrency(w.amount)}</CardTitle>
-                                            <CardDescription>via {w.method}</CardDescription>
-                                            <div className="mt-2 space-y-1 text-xs text-muted-foreground">
-                                                <p>Regular Fee: {formatCurrency(Number(w.fee || 0))}</p>
-                                                <p>Fee %: {w.withdrawalFeePercent !== undefined && w.withdrawalFeePercent !== null ? `${w.withdrawalFeePercent}%` : 'Default'}</p>
-                                                <p className="text-sm font-semibold text-green-600">User Receives After Fee: {formatCurrency(getAmountAfterWithdrawalFee(w))}</p>
-                                                <p>Early Rule: 30% fee applies to principal withdrawn before 60 days.</p>
-                                                {getEstimatedEarlyWithdrawalFee(w) > 0 && (
-                                                    <p>Early Withdrawal Fee: {formatCurrency(getEstimatedEarlyWithdrawalFee(w))}</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm font-semibold flex items-center gap-2"><User className="h-4 w-4" /> {w.user?.email || 'Unknown User'}</p>
-                                            <p className="text-xs text-muted-foreground">UID: {w.userId}</p>
-                                            <p className="text-xs text-muted-foreground">Current Balance: {w.user?.balance ? formatCurrency(w.user.balance) : 'N/A'}</p>
+                            <TradingCard key={w.id} className="bg-muted/30">
+                                <div className="flex justify-between items-start">
+                                    <div className="min-w-0">
+                                        <div className="text-2xl font-bold">{formatCurrency(w.amount)}</div>
+                                        <div className="text-sm text-muted-foreground">via {w.method}</div>
+                                        <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                                            <p>Regular Fee: {formatCurrency(Number(w.fee || 0))}</p>
+                                            <p>Fee %: {w.withdrawalFeePercent !== undefined && w.withdrawalFeePercent !== null ? `${w.withdrawalFeePercent}%` : 'Default'}</p>
+                                            <p className="text-sm font-semibold text-green-600">User Receives After Fee: {formatCurrency(getAmountAfterWithdrawalFee(w))}</p>
+                                            <p>Early Rule: 30% fee applies to principal withdrawn before 60 days.</p>
+                                            {getEstimatedEarlyWithdrawalFee(w) > 0 && (
+                                                <p>Early Withdrawal Fee: {formatCurrency(getEstimatedEarlyWithdrawalFee(w))}</p>
+                                            )}
                                         </div>
                                     </div>
-                                </CardHeader>
-                                <CardContent>
+                                    <div className="text-right">
+                                        <p className="text-sm font-semibold flex items-center gap-2"><User className="h-4 w-4" /> {w.user?.email || 'Unknown User'}</p>
+                                        <p className="text-xs text-muted-foreground">UID: {w.userId}</p>
+                                        <p className="text-xs text-muted-foreground">Current Balance: {w.user?.balance ? formatCurrency(w.user.balance) : 'N/A'}</p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4">
                                     <h4 className="text-sm font-semibold mb-2">User Provided Withdrawal Details:</h4>
                                     <div className="text-sm bg-background p-3 rounded-md space-y-2">
                                        {typeof w.details === 'object' && w.details !== null ? (
@@ -478,8 +477,9 @@ export default function AdminPendingWithdrawsPage() {
                                            <p>{String(w.details)}</p>
                                        )}
                                     </div>
-                                </CardContent>
-                                <CardFooter className="flex justify-between items-center bg-muted/50 p-4">
+                                </div>
+
+                                <div className="mt-4 flex items-center justify-between">
                                     <p className="text-xs text-muted-foreground">
                                         Requested on {format(new Date(w.createdAt.seconds * 1000), "PPpp")}
                                     </p>
@@ -508,8 +508,8 @@ export default function AdminPendingWithdrawsPage() {
                                             <Check className="mr-2 h-4 w-4" /> Approve
                                         </Button>
                                     </div>
-                                </CardFooter>
-                            </Card>
+                                </div>
+                            </TradingCard>
                         ))}
                     </div>
                 )}

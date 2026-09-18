@@ -105,20 +105,7 @@ export default function NotificationsPage() {
                         Mark all as read
                     </Button>
                 </div>
-                <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <p className="font-semibold">Received a promo code?</p>
-                            <p className="text-sm text-muted-foreground">Open the promo section and paste your code there to redeem it.</p>
-                        </div>
-                        <Button asChild>
-                            <Link href="/dashboard/bonus/daily">
-                                <TicketPercent className="mr-2 h-4 w-4" />
-                                Open Promo Section
-                            </Link>
-                        </Button>
-                    </CardContent>
-                </Card>
+                {/* Promo system removed for this deployment */}
                 <Card>
                     <CardContent className="p-0">
                         {loading ? (
