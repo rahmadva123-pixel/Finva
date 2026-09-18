@@ -67,11 +67,11 @@ function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
     if (processing) return; // prevent duplicate submissions
     setErrorMessage(null);
     setProcessing(true);
     const form = e.target as HTMLFormElement;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     if (humanAnswer.trim() !== humanCheck.answer) {
@@ -82,6 +82,7 @@ function LoginForm() {
       });
       setHumanCheck(createHumanCheck());
       setHumanAnswer("");
+      setProcessing(false);
       return;
     }
 
@@ -90,6 +91,15 @@ function LoginForm() {
 
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+
+      // persist remembered email if requested (does not affect auth)
+      try {
+        if (rememberMe) {
+          localStorage.setItem('finva_remember_email', JSON.stringify({ email }));
+        } else {
+          localStorage.removeItem('finva_remember_email');
+        }
+      } catch {}
 
       let emailVerificationEnabled = false;
       if (db) {
