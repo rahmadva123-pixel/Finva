@@ -592,9 +592,5 @@ function SignUpForm() {
 }
 
 export default function SignupPage() {
-    return (
-        <React.Suspense fallback={<div>Loading...</div>}>
-            <SignUpPageContent />
-        </React.Suspense>
-    )
+  return <SignUpPageContent />;
 }
