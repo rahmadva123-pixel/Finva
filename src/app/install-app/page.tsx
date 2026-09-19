@@ -65,13 +65,13 @@ export default function InstallAppPage() {
   return (
     <main className="container mx-auto flex min-h-[70vh] items-center justify-center px-4 py-16">
       <Card className="w-full max-w-xl text-center">
-        <CardHeader>
+          <CardHeader>
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Smartphone className="h-8 w-8" />
           </div>
-          <CardTitle className="text-3xl font-bold">Download Our App</CardTitle>
+          <CardTitle className="text-3xl font-bold">Get Finva</CardTitle>
           <CardDescription>
-            Install the web app on your phone or desktop for quick access and a full-screen app experience.
+            Get Finva on your device for quick trades and a streamlined experience.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -82,12 +82,12 @@ export default function InstallAppPage() {
           ) : (
             <Button onClick={handleInstall} size="lg" className="w-full sm:w-auto">
               <Download className="mr-2 h-5 w-5" />
-              {canInstall ? "Install App" : "How to Install App"}
+              {canInstall ? "Get Finva" : "How to Get Finva"}
             </Button>
           )}
           <div className="rounded-lg border bg-muted/40 p-4 text-left text-sm text-muted-foreground">
             <p className="font-medium text-foreground">If the install popup does not show:</p>
-            <p>On Android Chrome, open the browser menu and tap Add to Home Screen or Install App.</p>
+            <p>On Android Chrome, open the browser menu and tap Add to Home Screen to install the app.</p>
             <p>On iPhone Safari, tap Share and then Add to Home Screen.</p>
           </div>
         </CardContent>
