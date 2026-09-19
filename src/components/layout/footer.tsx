@@ -118,7 +118,7 @@ export function Footer() {
                                 <Image src={settings.logoUrl} alt="Logo" width={120} height={40} objectFit="contain" />
                             </div>
                         )}
-                        <p className="text-muted-foreground">{settings.brandDescription}</p>
+                        {/* Brand description moved to header for a refreshed layout */}
                     </div>
 
                     {/* Link Sections */}

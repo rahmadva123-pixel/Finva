@@ -75,6 +75,7 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
   const router = useRouter();
   const [logoUrl, setLogoUrl] = useState('');
   const [logoText, setLogoText] = useState('');
+    const [brandTagline, setBrandTagline] = useState('');
   const [showLogoTextWithImage, setShowLogoTextWithImage] = useState(true);
   const [logoWidth, setLogoWidth] = useState(32);
   const [logoHeight, setLogoHeight] = useState(32);
@@ -125,6 +126,7 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
         } else {
             setLogoText('Finva');
         }
+            setBrandTagline(data.brandDescription || '');
         setTemplateLoading(false);
     }
 
@@ -231,7 +233,10 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
                             <Image src={logoUrl} alt={logoText} width={logoWidth} height={logoHeight} />
                         ) : null}
                         {(!logoUrl || showLogoTextWithImage) && (
-                            <span className="text-lg font-semibold font-headline tracking-tight">{logoText}</span>
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-semibold font-headline tracking-tight">{logoText}</span>
+                                    {brandTagline && <span className="hidden md:block text-xs text-muted-foreground">{brandTagline}</span>}
+                                </div>
                         )}
                     </>
                 )}

@@ -155,7 +155,7 @@ const initialData: Omit<TemplateData, 'themeColors' | 'loginTitle' | 'loginSubti
   blogPageTitle: 'Our Blog',
   blogPageDescription: 'Stay up-to-date with the latest news, guides, and insights from our team of experts.',
   heroTitle: 'Build Your Future with Smart Investments',
-  heroSubtitle: 'A modern trading platform to grow your wealth securely and confidently.',
+  heroSubtitle: 'Trade smarter with secure tools and real-time insights.',
   heroImageUrls: [],
   heroBackgroundImageUrl: '',
   heroOverlayColor: 'rgba(0, 0, 0, 0.5)',
