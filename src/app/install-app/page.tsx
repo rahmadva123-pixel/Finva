@@ -64,68 +64,34 @@ export default function InstallAppPage() {
 
   return (
     <main className="container mx-auto flex min-h-[70vh] items-center justify-center px-4 py-16">
-      <div className="w-full max-w-[640px] px-4">
-        <div className="rounded-2xl bg-gradient-to-b from-[#060712] to-[#071026] p-6 shadow-lg">
-          <div className="flex flex-col items-start gap-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
-                <Smartphone className="h-5 w-5" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Get Finva</h1>
-                <p className="text-sm text-muted-foreground">Fast trades. Pro charts. Native-like experience.</p>
-              </div>
-            </div>
-
-            <div className="w-full overflow-hidden rounded-md bg-[#071430] p-3">
-              <svg viewBox="0 0 300 120" className="w-full h-36" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="g1" x1="0" x2="1">
-                    <stop offset="0%" stopColor="#0ea5a4" stopOpacity="0.9" />
-                    <stop offset="100%" stopColor="#2563EB" stopOpacity="0.9" />
-                  </linearGradient>
-                </defs>
-                <rect width="300" height="120" fill="#061222" />
-                <path d="M0 80 C40 60, 80 40, 120 50 C160 60, 200 30, 240 45 C280 60, 300 40, 300 40" fill="none" stroke="url(#g1)" strokeWidth="3" strokeLinecap="round" />
-                <circle cx="120" cy="50" r="3" fill="#fff" />
-              </svg>
-              <div className="mt-2 flex items-center justify-between">
-                <div className="text-xs text-muted-foreground">Live preview • Simulated</div>
-                <div className="text-xs text-muted-foreground">v1.0</div>
-              </div>
-            </div>
-
-            <div className="w-full">
-              {isStandalone ? (
-                <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-300">App installed on this device.</div>
-              ) : (
-                <div className="flex w-full flex-col gap-3">
-                  <Button onClick={handleInstall} size="lg" className="w-full bg-primary text-primary-foreground">
-                    <Download className="mr-2 h-5 w-5" />
-                    Get Finva
-                  </Button>
-                  <Button variant="ghost" onClick={() => toast({ title: 'How to install', description: 'Open your browser menu and choose Add to Home Screen.' })} className="w-full text-sm text-muted-foreground">
-                    How to install
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            <div className="flex w-full flex-col gap-2 pt-2">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-white/6 flex items-center justify-center text-xs">✓</div>
-                <div className="text-sm text-white">Pro-style charts optimized for quick decisions</div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-white/6 flex items-center justify-center text-xs">🔒</div>
-                <div className="text-sm text-white">Secure sync with Firebase</div>
-              </div>
-            </div>
-
-            <div className="text-xs text-muted-foreground pt-3">If the prompt doesn't appear, open your browser menu and choose Add to Home Screen.</div>
+      <Card className="w-full max-w-xl text-center">
+        <CardHeader>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Smartphone className="h-8 w-8" />
           </div>
-        </div>
-      </div>
+          <CardTitle className="text-3xl font-bold">Download Our App</CardTitle>
+          <CardDescription>
+            Install the web app on your phone or desktop for quick access and a full-screen app experience.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {isStandalone ? (
+            <p className="rounded-lg bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-300">
+              The app is already installed on this device.
+            </p>
+          ) : (
+            <Button onClick={handleInstall} size="lg" className="w-full sm:w-auto">
+              <Download className="mr-2 h-5 w-5" />
+              {canInstall ? "Install App" : "How to Install App"}
+            </Button>
+          )}
+          <div className="rounded-lg border bg-muted/40 p-4 text-left text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">If the install popup does not show:</p>
+            <p>On Android Chrome, open the browser menu and tap Add to Home Screen or Install App.</p>
+            <p>On iPhone Safari, tap Share and then Add to Home Screen.</p>
+          </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }
