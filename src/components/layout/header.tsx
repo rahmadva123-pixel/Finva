@@ -233,10 +233,16 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
                             <Image src={logoUrl} alt={logoText} width={logoWidth} height={logoHeight} />
                         ) : null}
                         {(!logoUrl || showLogoTextWithImage) && (
+                            <div className="flex items-center gap-3">
                                 <div className="flex flex-col">
                                     <span className="text-lg font-semibold font-headline tracking-tight">{logoText}</span>
                                     {brandTagline && <span className="hidden md:block text-xs text-muted-foreground">{brandTagline}</span>}
                                 </div>
+                                <Link href="/install-app" className="hidden md:inline-flex items-center gap-2 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium shadow-sm hover:opacity-95">
+                                    <span>📱</span>
+                                    <span>Get Finva</span>
+                                </Link>
+                            </div>
                         )}
                     </>
                 )}
