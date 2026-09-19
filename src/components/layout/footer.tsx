@@ -118,7 +118,7 @@ export function Footer() {
                                 <Image src={settings.logoUrl} alt="Logo" width={120} height={40} objectFit="contain" />
                             </div>
                         )}
-                        {/* Brand description moved to header for a refreshed layout */}
+                        <p className="text-muted-foreground">{settings.brandDescription}</p>
                     </div>
 
                     {/* Link Sections */}
@@ -146,13 +146,9 @@ export function Footer() {
                             {settings.downloadAppSubtitle && <p className="text-muted-foreground mb-4">{settings.downloadAppSubtitle}</p>}
                             <div className="flex flex-col items-center md:items-start gap-4">
                                 {(!settings.googlePlayImageUrl || settings.googlePlayImageUrl.trim() === '') && (!settings.appStoreImageUrl || settings.appStoreImageUrl.trim() === '') && (
-                                    <div className="flex flex-col items-center md:items-start gap-2">
-                                        <Link href="/install-app" className="inline-flex items-center h-10 px-4 rounded-full bg-primary text-white font-medium shadow transition-transform active:scale-95">
-                                            <span className="mr-2">📱</span>
-                                            Get Finva
-                                        </Link>
-                                        <Link href="/install-app" className="text-xs text-muted-foreground">Quick install · No signup required</Link>
-                                    </div>
+                                    <Link href="/install-app" className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
+                                        Install App
+                                    </Link>
                                 )}
                                 {settings.googlePlayImageUrl && settings.googlePlayImageUrl.trim() !== '' && (
                                     <Link href={resolveAppLink(settings.googlePlayLink)} target="_blank" rel="noopener noreferrer">

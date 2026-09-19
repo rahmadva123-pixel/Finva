@@ -12,26 +12,19 @@ import { Label } from "@/components/ui/label";
 import { auth, db, sendVerificationEmailToUser } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 
-const createHumanCheck = () => {
-  const first = Math.floor(Math.random() * 9) + 1;
-  const second = Math.floor(Math.random() * 9) + 1;
-  return {
-    question: `What is ${first} + ${second}?`,
-    answer: String(first + second),
-  };
-};
 
 function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
   const [title, setTitle] = useState("Access Your Trading Account");
   const [subtitle, setSubtitle] = useState("Choose Email or Phone to sign in. You can also request a magic link to your inbox.");
-  const [humanCheck, setHumanCheck] = useState(createHumanCheck);
-  const [humanAnswer, setHumanAnswer] = useState("");
+  const [humanConfirmed, setHumanConfirmed] = useState(false);
+  const [humanPending, setHumanPending] = useState(false);
+  const humanTimerRef = useRef<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -73,15 +66,12 @@ function LoginForm() {
     const form = e.target as HTMLFormElement;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-
-    if (humanAnswer.trim() !== humanCheck.answer) {
+    if (!humanConfirmed) {
       toast({
         variant: "destructive",
-        title: "Human verification failed",
-        description: "Please solve the quick check before logging in.",
+        title: "Human verification required",
+        description: "Please confirm you're human before signing in.",
       });
-      setHumanCheck(createHumanCheck());
-      setHumanAnswer("");
       setProcessing(false);
       return;
     }
@@ -239,6 +229,35 @@ function LoginForm() {
               <label className="inline-flex items-center text-sm">
                 <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="h-4 w-4 rounded border" />
                 <span className="ml-2">Keep me signed in on this device</span>
+              </label>
+            </div>
+
+            <div className="flex items-center mt-1">
+              <label className="inline-flex items-center text-sm">
+                <input
+                  type="checkbox"
+                  checked={humanConfirmed || humanPending}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    if (checked) {
+                      setHumanPending(true);
+                      humanTimerRef.current = window.setTimeout(() => {
+                        setHumanPending(false);
+                        setHumanConfirmed(true);
+                        humanTimerRef.current = null;
+                      }, 1500);
+                    } else {
+                      if (humanTimerRef.current) {
+                        clearTimeout(humanTimerRef.current);
+                        humanTimerRef.current = null;
+                      }
+                      setHumanPending(false);
+                      setHumanConfirmed(false);
+                    }
+                  }}
+                  className="h-4 w-4 rounded border"
+                />
+                <span className="ml-2">{humanPending ? 'Verifying...' : "I'm human"}</span>
               </label>
             </div>
 

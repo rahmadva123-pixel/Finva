@@ -11,21 +11,14 @@ import { AuthLayout } from "@/components/layout/auth-layout";
 import { auth, db, sendVerificationEmailToUser } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { doc, getDoc, setDoc, collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc, writeBatch } from "firebase/firestore";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Eye, EyeOff } from "lucide-react";
 
 
-const createHumanCheck = () => {
-    const first = Math.floor(Math.random() * 9) + 1;
-    const second = Math.floor(Math.random() * 9) + 1;
-    return {
-        question: `What is ${first} + ${second}?`,
-        answer: String(first + second),
-    };
-};
+// Replaced math-based human check with simple checkbox debounce flow
 
 const countries = [
     { value: "AF", label: "Afghanistan" },
@@ -300,8 +293,9 @@ function SignUpForm() {
   const [subtitle, setSubtitle] = useState("Fast signup — email or phone. Keep your details safe.");
   const [country, setCountry] = useState("");
   const [referredBy, setReferredBy] = useState<string | null>(null);
-  const [humanCheck, setHumanCheck] = useState(createHumanCheck);
-  const [humanAnswer, setHumanAnswer] = useState("");
+  const [humanConfirmed, setHumanConfirmed] = useState(false);
+  const [humanPending, setHumanPending] = useState(false);
+  const humanTimerRef = useRef<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -339,15 +333,13 @@ function SignUpForm() {
     const refId = searchParams.get('ref');
     const currentReferredBy = refId || referredBy;
 
-    if (humanAnswer.trim() !== humanCheck.answer) {
-        toast({
-            variant: "destructive",
-            title: "Human verification failed",
-            description: "Please solve the quick check before signing up.",
-        });
-        setHumanCheck(createHumanCheck());
-        setHumanAnswer("");
-        return;
+    if (!humanConfirmed) {
+      toast({
+        variant: "destructive",
+        title: "Human verification required",
+        description: "Please confirm you're human before signing up.",
+      });
+      return;
     }
 
     if (password !== confirmPassword) {
@@ -553,24 +545,34 @@ function SignUpForm() {
             </div>
         </div>
           <div className="rounded-2xl border border-border/60 bg-muted/30 p-3">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium text-foreground">Human verification</p>
-                <p className="text-xs text-muted-foreground">{humanCheck.question}</p>
-              </div>
-              <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setHumanCheck(createHumanCheck()); setHumanAnswer(""); }}>
-                Refresh
-              </Button>
+            <div className="flex items-center gap-3">
+              <label className="inline-flex items-center text-sm">
+                <input
+                  type="checkbox"
+                  checked={humanConfirmed || humanPending}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    if (checked) {
+                      setHumanPending(true);
+                      humanTimerRef.current = window.setTimeout(() => {
+                        setHumanPending(false);
+                        setHumanConfirmed(true);
+                        humanTimerRef.current = null;
+                      }, 1500);
+                    } else {
+                      if (humanTimerRef.current) {
+                        clearTimeout(humanTimerRef.current);
+                        humanTimerRef.current = null;
+                      }
+                      setHumanPending(false);
+                      setHumanConfirmed(false);
+                    }
+                  }}
+                  className="h-4 w-4 rounded border"
+                />
+                <span className="ml-2">{humanPending ? 'Verifying...' : "I'm human"}</span>
+              </label>
             </div>
-            <Input
-              id="human-check-signup"
-              value={humanAnswer}
-              onChange={(e) => setHumanAnswer(e.target.value)}
-              placeholder="Type the answer"
-              className="min-h-[48px] rounded-xl text-sm"
-              inputMode="numeric"
-              required
-            />
           </div>
           <Button type="submit" className="min-h-[48px] w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 py-3">
             Create Account
