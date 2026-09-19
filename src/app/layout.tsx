@@ -10,6 +10,7 @@ import { Favicon } from '@/components/ui/favicon';
 import { SiteTitleUpdater } from '@/components/ui/site-title-updater';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Footer } from '@/components/layout/footer';
+import GetAppFab from '@/components/ui/get-app-fab';
 import { PreloaderProvider } from '@/components/providers/preloader-provider';
 import { PwaInstaller } from '@/components/pwa/pwa-installer';
 import React from 'react';
@@ -41,6 +42,7 @@ export default function RootLayout({
                 <SiteTitleUpdater />
                 <main className="flex-grow">{children}</main>
                 <Footer />
+                <GetAppFab />
                 <LiveChat />
                 <Toaster />
             </PreloaderProvider>
