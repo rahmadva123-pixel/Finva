@@ -283,9 +283,11 @@ function SignUpPageContent() {
 
   return (
     <AuthLayout>
-      <Card className="rounded-[24px] border-0 bg-transparent shadow-none">
-        {isClient ? <SignUpForm /> : <div className="h-[600px] animate-pulse rounded-[24px] bg-muted"></div>}
-      </Card>
+      <div className="w-full max-w-[380px] mx-auto px-4 sm:max-w-[560px]">
+        <Card className="rounded-[20px] border-0 bg-transparent shadow-none">
+          {isClient ? <SignUpForm /> : <div className="h-[600px] animate-pulse rounded-[20px] bg-muted"></div>}
+        </Card>
+      </div>
     </AuthLayout>
   );
 }
@@ -294,8 +296,8 @@ function SignUpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const [title, setTitle] = useState("Create an Account");
-  const [subtitle, setSubtitle] = useState("Start your journey to financial wisdom today.");
+  const [title, setTitle] = useState("Open your trading account");
+  const [subtitle, setSubtitle] = useState("Fast signup — email or phone. Keep your details safe.");
   const [country, setCountry] = useState("");
   const [referredBy, setReferredBy] = useState<string | null>(null);
   const [humanCheck, setHumanCheck] = useState(createHumanCheck);
@@ -481,76 +483,75 @@ function SignUpForm() {
 
   return (
     <>
-      <CardHeader className="space-y-2 text-center">
-        <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+      <CardHeader className="space-y-2 text-center ml-0 mr-0">
+        <div className="mx-auto inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <span className="text-lg font-bold">✨</span>
         </div>
-        <CardTitle className="font-headline text-2xl sm:text-3xl">{title}</CardTitle>
-        <CardDescription className="text-sm sm:text-base">{subtitle}</CardDescription>
+        <CardTitle className="font-headline text-lg sm:text-2xl">{title}</CardTitle>
+        <CardDescription className="text-xs sm:text-sm">{subtitle}</CardDescription>
       </CardHeader>
       <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
         <form onSubmit={handleSubmit} className="space-y-4">
-           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" name="firstName" placeholder="John" className="min-h-12 rounded-xl" required />
-              </div>
-               <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" name="lastName" placeholder="Doe" className="min-h-12 rounded-xl" required />
-              </div>
-          </div>
-           <div className="space-y-2">
-              <Label htmlFor="userName">User Name</Label>
-              <Input id="userName" name="userName" placeholder="johndoe" className="min-h-12 rounded-xl" required />
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                  <Label htmlFor="country">Country</Label>
-                  <Select name="country" required onValueChange={setCountry}>
-                      <SelectTrigger id="country" className="min-h-12 rounded-xl">
-                          <SelectValue placeholder="Select Country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <ScrollArea className="h-72">
-                              {countries.map((country) => (
-                                  <SelectItem key={country.value} value={country.label}>
-                                      {country.label}
-                                  </SelectItem>
-                              ))}
-                          </ScrollArea>
-                      </SelectContent>
-                  </Select>
-              </div>
-               <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" name="phone" type="tel" placeholder="Your phone number" className="min-h-12 rounded-xl" required />
-              </div>
+          <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" name="email" type="email" placeholder="name@example.com" className="min-h-[48px] rounded-xl text-sm" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" placeholder="name@example.com" className="min-h-12 rounded-xl" required />
+          <Label htmlFor="phone">Phone</Label>
+          <Input id="phone" name="phone" type="tel" placeholder="+123456789" className="min-h-[48px] rounded-xl text-sm" />
           </div>
-           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input id="password" name="password" type={showPassword ? "text" : "password"} className="min-h-12 rounded-xl pr-12" required />
-                <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"}>
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-              </div>
-              <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <div className="relative">
-                <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} className="min-h-12 rounded-xl pr-12" required />
-                <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowConfirmPassword((value) => !value)} aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}>
-                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-              </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="firstName">First Name</Label>
+            <Input id="firstName" name="firstName" placeholder="John" className="min-h-[48px] rounded-xl text-sm" required />
           </div>
+           <div className="space-y-2">
+            <Label htmlFor="lastName">Last Name</Label>
+            <Input id="lastName" name="lastName" placeholder="Doe" className="min-h-[48px] rounded-xl text-sm" required />
+          </div>
+        </div>
+         <div className="space-y-2">
+          <Label htmlFor="userName">User Name</Label>
+          <Input id="userName" name="userName" placeholder="johndoe" className="min-h-[48px] rounded-xl text-sm" required />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="country">Country</Label>
+          <Select name="country" required onValueChange={setCountry}>
+            <SelectTrigger id="country" className="min-h-[48px] rounded-xl text-sm">
+              <SelectValue placeholder="Select Country" />
+            </SelectTrigger>
+            <SelectContent>
+              <ScrollArea className="h-56">
+                {countries.map((country) => (
+                  <SelectItem key={country.value} value={country.label}>
+                    {country.label}
+                  </SelectItem>
+                ))}
+              </ScrollArea>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+            <Label htmlFor="password">Create Password</Label>
+            <div className="relative">
+              <Input id="password" name="password" type={showPassword ? "text" : "password"} className="min-h-[48px] rounded-xl pr-12 text-sm" required />
+              <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"}>
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </div>
+            </div>
+            <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="relative">
+              <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} className="min-h-[48px] rounded-xl pr-12 text-sm" required />
+              <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowConfirmPassword((value) => !value)} aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}>
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </div>
+            </div>
+        </div>
           <div className="rounded-2xl border border-border/60 bg-muted/30 p-3">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
@@ -566,21 +567,21 @@ function SignUpForm() {
               value={humanAnswer}
               onChange={(e) => setHumanAnswer(e.target.value)}
               placeholder="Type the answer"
-              className="min-h-12 rounded-xl"
+              className="min-h-[48px] rounded-xl text-sm"
               inputMode="numeric"
               required
             />
           </div>
-          <Button type="submit" className="min-h-12 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
-            Register
+          <Button type="submit" className="min-h-[48px] w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 py-3">
+            Create Account
           </Button>
         </form>
       </CardContent>
       <CardFooter className="flex justify-center px-4 pb-5 text-center text-sm">
         <p>
-          Already have an account?{" "}
+          Have an account?{" "}
           <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
-            Log in
+            Sign in
           </Link>
         </p>
       </CardFooter>
