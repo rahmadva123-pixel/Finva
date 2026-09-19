@@ -52,7 +52,7 @@ interface FooterSettings {
 }
 
 const initialSettings: FooterSettings = {
-    brandDescription: "A modern platform to grow your wealth with tailored investment plans and expert guidance.",
+    brandDescription: "A modern trading platform to grow your wealth securely and confidently.",
     logoUrl: '',
     menuLists: [
         {

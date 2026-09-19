@@ -36,7 +36,7 @@ interface FooterSettings {
 }
 
 const defaultFooterSettings: FooterSettings = {
-    brandDescription: "A modern platform to grow your wealth with tailored investment plans and expert guidance.",
+    brandDescription: "A modern trading platform to grow your wealth securely and confidently.",
     logoUrl: '',
     menuLists: [],
     copyrightText: "© {year} All Rights Reserved.",
