@@ -80,6 +80,7 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
   const [logoWidth, setLogoWidth] = useState(32);
   const [logoHeight, setLogoHeight] = useState(32);
   const [templateLoading, setTemplateLoading] = useState(true);
+    const [isDark, setIsDark] = useState<boolean>(false);
   const [balance, setBalance] = useState(0);
   const [currency, setCurrency] = useState<CurrencySettings>({ 
     symbol: '$', 
@@ -169,6 +170,15 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
     }
 
   }, [user]);
+
+    useEffect(() => {
+        try {
+            const current = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+            setIsDark(Boolean(current));
+        } catch (e) {
+            setIsDark(false);
+        }
+    }, []);
   
   const handleMarkAsRead = async () => {
     if(!db || !user || unreadCount === 0) return;
@@ -296,11 +306,13 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
                 {/* Theme toggle */}
                 <Button variant="ghost" size="icon" onClick={() => {
                     try {
-                        const isDark = document.documentElement.classList.toggle('dark');
-                        window.localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                        const newDark = !isDark;
+                        if (typeof document !== 'undefined') document.documentElement.classList.toggle('dark', newDark);
+                        if (typeof window !== 'undefined') window.localStorage.setItem('theme', newDark ? 'dark' : 'light');
+                        setIsDark(newDark);
                     } catch(e) { console.warn(e); }
                 }} aria-label="Toggle theme">
-                    {document?.documentElement?.classList?.contains && document.documentElement.classList.contains('dark') ? <Sun className="h-4 w-4 text-sidebar-foreground" /> : <Moon className="h-4 w-4 text-sidebar-foreground" />}
+                    {isDark ? <Sun className="h-4 w-4 text-sidebar-foreground" /> : <Moon className="h-4 w-4 text-sidebar-foreground" />}
                 </Button>
         
         { authLoading ? (
