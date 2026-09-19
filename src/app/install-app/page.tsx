@@ -63,49 +63,69 @@ export default function InstallAppPage() {
   };
 
   return (
-    <main className="container mx-auto flex min-h-[70vh] items-center justify-center px-6 py-20">
-      <Card className="w-full max-w-4xl bg-background/60 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="flex items-center justify-center p-10">
-            <div className="h-[420px] w-[260px] rounded-2xl border border-muted/10 bg-gradient-to-b from-white to-muted/5 shadow-sm flex items-center justify-center">
-              <div className="text-sm text-muted-foreground">Phone preview</div>
+    <main className="container mx-auto flex min-h-[70vh] items-center justify-center px-4 py-16">
+      <div className="w-full max-w-[640px] px-4">
+        <div className="rounded-2xl bg-gradient-to-b from-[#060712] to-[#071026] p-6 shadow-lg">
+          <div className="flex flex-col items-start gap-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
+                <Smartphone className="h-5 w-5" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Get Finva</h1>
+                <p className="text-sm text-muted-foreground">Fast trades. Pro charts. Native-like experience.</p>
+              </div>
             </div>
-          </div>
 
-          <div className="p-10 flex flex-col justify-center gap-6">
-            <CardHeader className="p-0">
-              <CardTitle className="text-3xl font-semibold">Get Finva</CardTitle>
-              <CardDescription className="mt-2 text-sm text-muted-foreground">
-                A lightweight trading companion — fast access, secure sync, and a native-like experience.
-              </CardDescription>
-            </CardHeader>
+            <div className="w-full overflow-hidden rounded-md bg-[#071430] p-3">
+              <svg viewBox="0 0 300 120" className="w-full h-36" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="g1" x1="0" x2="1">
+                    <stop offset="0%" stopColor="#0ea5a4" stopOpacity="0.9" />
+                    <stop offset="100%" stopColor="#2563EB" stopOpacity="0.9" />
+                  </linearGradient>
+                </defs>
+                <rect width="300" height="120" fill="#061222" />
+                <path d="M0 80 C40 60, 80 40, 120 50 C160 60, 200 30, 240 45 C280 60, 300 40, 300 40" fill="none" stroke="url(#g1)" strokeWidth="3" strokeLinecap="round" />
+                <circle cx="120" cy="50" r="3" fill="#fff" />
+              </svg>
+              <div className="mt-2 flex items-center justify-between">
+                <div className="text-xs text-muted-foreground">Live preview • Simulated</div>
+                <div className="text-xs text-muted-foreground">v1.0</div>
+              </div>
+            </div>
 
-            <CardContent className="p-0 space-y-4">
+            <div className="w-full">
               {isStandalone ? (
-                <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-700">App already installed on this device.</div>
+                <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-300">App installed on this device.</div>
               ) : (
-                <div className="flex gap-3">
-                  <Button onClick={handleInstall} size="lg" className="flex-1">
+                <div className="flex w-full flex-col gap-3">
+                  <Button onClick={handleInstall} size="lg" className="w-full bg-primary text-primary-foreground">
                     <Download className="mr-2 h-5 w-5" />
                     Get Finva
                   </Button>
-                  <Button variant="outline" onClick={() => toast({ title: 'How to install', description: 'Open your browser menu and choose Add to Home Screen.' })} className="hidden sm:inline-flex">
-                    How to
+                  <Button variant="ghost" onClick={() => toast({ title: 'How to install', description: 'Open your browser menu and choose Add to Home Screen.' })} className="w-full text-sm text-muted-foreground">
+                    How to install
                   </Button>
                 </div>
               )}
+            </div>
 
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><strong>Fast load</strong> — optimized for quick trade flows.</li>
-                <li><strong>Secure</strong> — Firebase-backed auth and sync.</li>
-                <li><strong>Native feel</strong> — installs to full-screen.</li>
-              </ul>
+            <div className="flex w-full flex-col gap-2 pt-2">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-full bg-white/6 flex items-center justify-center text-xs">✓</div>
+                <div className="text-sm text-white">Pro-style charts optimized for quick decisions</div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-full bg-white/6 flex items-center justify-center text-xs">🔒</div>
+                <div className="text-sm text-white">Secure sync with Firebase</div>
+              </div>
+            </div>
 
-              <div className="text-xs text-muted-foreground">If the install prompt doesn't appear, open your browser menu and choose Add to Home Screen.</div>
-            </CardContent>
+            <div className="text-xs text-muted-foreground pt-3">If the prompt doesn't appear, open your browser menu and choose Add to Home Screen.</div>
           </div>
         </div>
-      </Card>
+      </div>
     </main>
   );
 }
