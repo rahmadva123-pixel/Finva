@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bell, User, LogOut, MoreVertical, Wallet, Landmark, Menu, CheckCircle, Clock, XCircle, Gift, TrendingUp, CircleDollarSign, Phone, MessageSquare, ArrowRight, LayoutDashboard, Sun, Moon } from 'lucide-react';
+import { Bell, User, LogOut, MoreVertical, Wallet, Landmark, Menu, CheckCircle, Clock, XCircle, Gift, TrendingUp, CircleDollarSign, Phone, MessageSquare, ArrowRight, LayoutDashboard, Sun, Moon, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -383,7 +383,7 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
               </DropdownMenuContent>
             </DropdownMenu>
           </>
-        ) : (
+                ) : (
           <div className="flex items-center">
             <div className="hidden sm:flex items-center gap-2">
                 <Button asChild variant="ghost">
@@ -412,6 +412,11 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
             </div>
         </div>
         )}
+                <div className="hidden sm:flex items-center ml-2">
+                    <Button variant="ghost" size="icon" aria-label="More actions">
+                        <ChevronDown className="h-4 w-4 text-sidebar-foreground" />
+                    </Button>
+                </div>
       </div>
     </header>
   );

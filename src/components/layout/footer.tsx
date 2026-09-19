@@ -140,7 +140,7 @@ export function Footer() {
                     </div>
 
                     {/* Download Section */}
-                    {(settings.downloadAppTitle || settings.googlePlayImageUrl || settings.appStoreImageUrl) && (
+                    {(settings.downloadAppTitle || settings.googlePlayImageUrl || settings.appStoreImageUrl) && !pathname?.startsWith('/dashboard') && (
                         <div className="lg:col-span-3 text-center md:text-left">
                             {settings.downloadAppTitle && <h4 className="font-headline font-semibold mb-4">{settings.downloadAppTitle}</h4>}
                             {settings.downloadAppSubtitle && <p className="text-muted-foreground mb-4">{settings.downloadAppSubtitle}</p>}
