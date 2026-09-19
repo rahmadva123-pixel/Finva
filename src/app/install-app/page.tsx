@@ -63,85 +63,45 @@ export default function InstallAppPage() {
   };
 
   return (
-    <main className="container mx-auto flex min-h-[70vh] items-center justify-center px-4 py-16">
-      <Card className="w-full max-w-4xl overflow-hidden">
+    <main className="container mx-auto flex min-h-[70vh] items-center justify-center px-6 py-20">
+      <Card className="w-full max-w-4xl bg-background/60 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="flex items-center justify-center bg-gradient-to-b from-primary/5 to-transparent p-8">
-            <div className="relative flex h-[420px] w-[240px] items-center justify-center rounded-3xl bg-gradient-to-b from-white to-muted/30 shadow-md dark:from-muted/10 dark:to-muted/20">
-              <div className="absolute inset-4 flex flex-col items-center justify-center gap-4 rounded-2xl bg-background p-4">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                  <Smartphone className="h-6 w-6" />
-                </div>
-                <div className="h-64 w-full rounded-md border border-dashed border-muted/30 bg-gradient-to-b from-transparent to-muted/5 flex items-center justify-center text-sm text-muted-foreground">
-                  App preview
-                </div>
-                <div className="flex w-full items-center justify-between text-xs text-muted-foreground">
-                  <span>Finva • 1.0.0</span>
-                  <span>Lightweight • Fast</span>
-                </div>
-              </div>
+          <div className="flex items-center justify-center p-10">
+            <div className="h-[420px] w-[260px] rounded-2xl border border-muted/10 bg-gradient-to-b from-white to-muted/5 shadow-sm flex items-center justify-center">
+              <div className="text-sm text-muted-foreground">Phone preview</div>
             </div>
           </div>
 
-          <div className="p-8">
+          <div className="p-10 flex flex-col justify-center gap-6">
             <CardHeader className="p-0">
-              <CardTitle className="text-3xl font-extrabold">Get Finva</CardTitle>
-              <CardDescription className="mt-2 text-base">
-                Install Finva for quick trades, secure sync across devices, and a native-like experience.
+              <CardTitle className="text-3xl font-semibold">Get Finva</CardTitle>
+              <CardDescription className="mt-2 text-sm text-muted-foreground">
+                A lightweight trading companion — fast access, secure sync, and a native-like experience.
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="mt-6 space-y-6 p-0">
+            <CardContent className="p-0 space-y-4">
               {isStandalone ? (
-                <div className="rounded-md bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-300">
-                  The app is already installed on this device.
-                </div>
+                <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-700">App already installed on this device.</div>
               ) : (
-                <div className="flex flex-col gap-3 sm:flex-row">
+                <div className="flex gap-3">
                   <Button onClick={handleInstall} size="lg" className="flex-1">
                     <Download className="mr-2 h-5 w-5" />
-                    {canInstall ? "Get Finva" : "Get Finva"}
+                    Get Finva
                   </Button>
-                  <Button variant="outline" onClick={() => {
-                    toast({
-                      title: 'How to install',
-                      description: 'Follow the steps below to add Finva to your device.',
-                    });
-                  }} className="hidden sm:inline-flex">
-                    How to Get Finva
+                  <Button variant="outline" onClick={() => toast({ title: 'How to install', description: 'Open your browser menu and choose Add to Home Screen.' })} className="hidden sm:inline-flex">
+                    How to
                   </Button>
                 </div>
               )}
 
-              <div className="grid gap-3 md:grid-cols-2">
-                <div className="flex items-start gap-3">
-                  <div className="mt-1 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    ✓
-                  </div>
-                  <div>
-                    <div className="font-medium">Fast & Lightweight</div>
-                    <div className="text-sm text-muted-foreground">Quick load times and optimized for trading flows.</div>
-                  </div>
-                </div>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><strong>Fast load</strong> — optimized for quick trade flows.</li>
+                <li><strong>Secure</strong> — Firebase-backed auth and sync.</li>
+                <li><strong>Native feel</strong> — installs to full-screen.</li>
+              </ul>
 
-                <div className="flex items-start gap-3">
-                  <div className="mt-1 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    ✓
-                  </div>
-                  <div>
-                    <div className="font-medium">Secure Sync</div>
-                    <div className="text-sm text-muted-foreground">Your settings and auth stay safe with Firebase.</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-lg border bg-muted/40 p-4 text-left text-sm text-muted-foreground">
-                <p className="font-medium text-foreground mb-2">If the install popup does not show</p>
-                <ul className="list-disc pl-5">
-                  <li>On Android Chrome: open the browser menu and tap Add to Home Screen.</li>
-                  <li>On iPhone Safari: tap Share and then Add to Home Screen.</li>
-                </ul>
-              </div>
+              <div className="text-xs text-muted-foreground">If the install prompt doesn't appear, open your browser menu and choose Add to Home Screen.</div>
             </CardContent>
           </div>
         </div>
