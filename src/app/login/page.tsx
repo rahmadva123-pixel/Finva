@@ -204,13 +204,13 @@ function LoginForm() {
         <rect width="100%" height="100%" fill="url(#g1)" />
       </svg>
 
-      <div className="w-full max-w-[420px] mx-auto">
+      <div className="w-full max-w-[380px] mx-auto px-4 sm:max-w-[420px]">
         <div className="relative rounded-2xl bg-card/95 border border-border/60 p-6 shadow-xl overflow-hidden animate-float-y">
           <div className="absolute left-0 top-0 h-full w-1.5 bg-primary/90"></div>
           <div className="mb-4 text-center ml-3">
             <div className="mx-auto h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">🔐</div>
-            <h2 className="text-2xl font-semibold mt-3">{title}</h2>
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
+            <h2 className="text-lg sm:text-2xl font-semibold mt-3">{title}</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">{subtitle}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" aria-label="Login form">
@@ -220,7 +220,7 @@ function LoginForm() {
               <label htmlFor="email" className="text-sm font-medium">Email or Phone</label>
               <div className="mt-2 relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"><Mail className="h-4 w-4" /></div>
-                <Input id="email" name="email" type="text" placeholder="you@company.com or +123456789" defaultValue={isLocalDev ? localDevEmail : ""} className="pl-10 rounded-xl min-h-12 text-base" required />
+                <Input id="email" name="email" type="text" placeholder="you@company.com or +123456789" defaultValue={isLocalDev ? localDevEmail : ""} className="pl-10 rounded-xl min-h-[48px] text-base" required />
               </div>
             </div>
 
@@ -228,7 +228,7 @@ function LoginForm() {
               <label htmlFor="password" className="text-sm font-medium">Password or Passcode</label>
               <div className="mt-2 relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"><Lock className="h-4 w-4" /></div>
-                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password or passcode" defaultValue={isLocalDev ? localDevPassword : ''} className="pl-10 rounded-xl min-h-12 text-base" required />
+                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password or passcode" defaultValue={isLocalDev ? localDevPassword : ''} className="pl-10 rounded-xl min-h-[48px] text-base" required />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
@@ -242,7 +242,7 @@ function LoginForm() {
               </label>
             </div>
 
-            <Button type="submit" className="w-full py-3 text-base bg-primary text-white hover:opacity-95 active:scale-95 transition disabled:opacity-60" disabled={processing}>
+            <Button type="submit" className="w-full py-4 text-base bg-primary text-white hover:opacity-95 active:scale-95 transition disabled:opacity-60" disabled={processing}>
               {processing ? <><Loader2 className="h-4 w-4 animate-spin mr-2 inline" /> Unlocking...</> : 'Unlock Account'}
             </Button>
 
