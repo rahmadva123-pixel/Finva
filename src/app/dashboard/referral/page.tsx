@@ -270,33 +270,36 @@ export default function TeamPage() {
 
     return (
         <DashboardLayout>
-            <div className="space-y-6">
+            <div className="mx-auto w-full max-w-6xl space-y-6">
                                 <div>
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                             <div>
-                                                <h1 className="text-3xl font-bold font-headline tracking-tight">Team</h1>
+                                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">Growth network</p>
+                                                <h1 className="mt-1 text-2xl font-bold font-headline tracking-tight sm:text-3xl">Referral team</h1>
+                                                <p className="mt-1 text-sm text-muted-foreground">Track your network and referral earnings.</p>
                                             </div>
-                                            <div className="flex space-x-2">
-                                                <a href="/dashboard/referral" className="px-3 py-1 rounded-md bg-muted text-sm">Team</a>
+                                            <div className="flex">
+                                                <a href="/dashboard/referral" className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">Team overview</a>
                                             </div>
                                         </div>
 
                                         {user && (
                                             <div className="mt-4">
-                                                <Card>
-                                                    <CardHeader>
-                                                        <CardTitle>Your referral link</CardTitle>
+                                                <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card">
+                                                    <CardHeader className="pb-3">
+                                                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-secondary">Invite and earn</p>
+                                                        <CardTitle className="text-lg">Your referral link</CardTitle>
                                                     </CardHeader>
                                                     <CardContent>
-                                                        <div className="flex items-center gap-3">
+                                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                                                             <input
                                                                 readOnly
                                                                 value={`${process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')}/signup?ref=${user.uid}`}
-                                                                className="px-2 py-2 rounded border bg-muted/10 text-sm w-full"
+                                                                className="min-h-11 w-full min-w-0 rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none focus:border-secondary"
                                                                 aria-label="Your referral link"
                                                             />
                                                             <button
-                                                                className="px-3 py-2 rounded bg-primary text-white text-sm"
+                                                                className="min-h-11 rounded-xl bg-primary px-5 py-2 text-sm font-medium text-white shadow-lg shadow-blue-950/30 transition hover:bg-primary/90"
                                                                 onClick={async () => {
                                                                     try {
                                                                         const link = `${process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')}/signup?ref=${user.uid}`;
@@ -314,34 +317,34 @@ export default function TeamPage() {
                                         )}
                                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Direct Referrals</CardTitle>
+                <div className="grid gap-4 sm:grid-cols-3">
+                    <Card className="border-primary/20 bg-primary/[0.06]">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Direct referrals</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{teamUser ? teamUser.directTeamSize : 0}</div>
+                            <div className="text-3xl font-bold text-primary">{teamUser ? teamUser.directTeamSize : 0}</div>
                         </CardContent>
                     </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Total Team Size</CardTitle>
+                    <Card className="border-secondary/20 bg-secondary/[0.06]">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Total team size</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{teamUser ? teamUser.totalTeamSize : 0}</div>
+                            <div className="text-3xl font-bold text-secondary">{teamUser ? teamUser.totalTeamSize : 0}</div>
                         </CardContent>
                     </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Total Referral Commission</CardTitle>
+                    <Card className="border-emerald-500/20 bg-emerald-500/[0.06]">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Referral commission</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">${totalCommission.toFixed(2)}</div>
+                            <div className="text-3xl font-bold text-emerald-500">${totalCommission.toFixed(2)}</div>
                         </CardContent>
                     </Card>
                 </div>
 
-                <Card>
+                <Card className="overflow-hidden border-white/10">
                     <CardHeader>
                         <CardTitle>Your Direct Referrals</CardTitle>
                     </CardHeader>
@@ -352,7 +355,7 @@ export default function TeamPage() {
                         ) : teamUser.directTeam.length === 0 ? (
                             <div className="p-6 text-center text-muted-foreground">You have no direct referrals yet.</div>
                         ) : (
-                            <div className="rounded-md border">
+                            <div className="overflow-x-auto rounded-xl border border-white/10">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
@@ -396,9 +399,9 @@ export default function TeamPage() {
                         )}
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="border-white/10">
                     <CardHeader>
-                        <CardTitle>Referral Tree</CardTitle>
+                        <CardTitle className="text-lg">Referral tree</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {user ? <ReferralTree rootId={user.uid} maxDepth={4} /> : <div className="text-sm text-muted-foreground">Sign in to view tree.</div>}

@@ -277,7 +277,7 @@ function SignUpPageContent() {
   return (
     <AuthLayout>
       <div className="w-full max-w-[560px] mx-auto px-1 sm:px-3">
-        <Card className="rounded-2xl border-0 bg-transparent shadow-none max-h-[88vh] overflow-hidden">
+        <Card className="rounded-2xl border-0 bg-transparent shadow-none">
           {isClient ? <SignUpForm /> : <div className="h-[600px] animate-pulse rounded-[20px] bg-muted"></div>}
         </Card>
       </div>
@@ -482,7 +482,7 @@ function SignUpForm() {
         <CardTitle className="font-headline text-lg sm:text-2xl">{title}</CardTitle>
         <CardDescription className="text-xs text-slate-400 sm:text-sm">{subtitle}</CardDescription>
       </CardHeader>
-      <CardContent className="max-h-[65vh] overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6">
+      <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
           <Label htmlFor="email">Email</Label>

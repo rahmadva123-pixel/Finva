@@ -62,7 +62,7 @@ export function AuthLayout({ children, wide = false }: { children: ReactNode; wi
   } : {};
 
   return (
-     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-slate-950 px-3 py-6 text-slate-100 sm:p-6" style={backgroundStyle}>
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-x-hidden bg-slate-950 px-3 py-6 text-slate-100 sm:p-6" style={backgroundStyle}>
        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.22),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(56,189,248,0.10),transparent_34%)]"></div>
        {background?.imageUrl && (
            <div className="absolute inset-0 z-0" style={{ backgroundColor: background.overlayColor }}></div>
