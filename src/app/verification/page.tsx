@@ -238,23 +238,23 @@ export default function VerificationPage() {
                             <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary"><ShieldCheck className="h-5 w-5" /></div><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">Finva verification</p><h1 className="mt-1 text-xl font-bold font-headline">Verify your identity</h1></div></div>
                         </div>
 
-                            <div className="p-5 sm:p-8">
-                                <div className="mb-6"><h2 className="text-xl font-bold font-headline tracking-tight">Verification form</h2></div>
+                                                        <div className="p-5 text-slate-900 sm:p-8 dark:text-slate-100">
+                                                                <div className="mb-6"><h2 className="text-xl font-bold font-headline tracking-tight text-slate-900 dark:text-white">Verification form</h2></div>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold">Document type</Label>
-                    <Select onValueChange={(id) => setSelectedMethod(methods.find(m => m.id === id) || null)}><SelectTrigger className="h-12 rounded-xl"><SelectValue placeholder="Select a document to submit" /></SelectTrigger><SelectContent>{methods.map(method => <SelectItem key={method.id} value={method.id}>{method.name}</SelectItem>)}</SelectContent></Select>
+                                        <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Document type</Label>
+                                        <Select onValueChange={(id) => setSelectedMethod(methods.find(m => m.id === id) || null)}><SelectTrigger className="h-12 rounded-xl border-slate-300 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"><SelectValue placeholder="Select a document to submit" /></SelectTrigger><SelectContent>{methods.map(method => <SelectItem key={method.id} value={method.id}>{method.name}</SelectItem>)}</SelectContent></Select>
                   </div>
                                     {selectedMethod && (
                                         <div className="space-y-5 border-t border-border/70 pt-5">
-                                            <p className="text-sm font-semibold">{selectedMethod.name}</p>
+                                            <p className="text-sm font-semibold text-slate-900 dark:text-white">{selectedMethod.name}</p>
                                             {selectedMethod.fields.map((field) => {
                                                 const fieldName = field.label.replace(/\s+/g, '_').toLowerCase();
                                                 return (
                                                     <div key={field.id} className="space-y-2">
-                                                        <Label htmlFor={fieldName}>{field.label} {field.required && <span className="text-destructive">*</span>}</Label>
-                                                        {field.type === 'text' && <Input id={fieldName} className="h-11 rounded-xl" placeholder={`Enter ${field.label.toLowerCase()}`} onChange={(e) => setFormData({ ...formData, [fieldName]: e.target.value })} required={field.required} />}
-                                                        {field.type === 'phone' && <Input id={fieldName} type="tel" className="h-11 rounded-xl" placeholder="Enter phone number" onChange={(e) => setFormData({ ...formData, [fieldName]: e.target.value })} required={field.required} />}
+                                                        <Label htmlFor={fieldName} className="text-slate-700 dark:text-slate-200">{field.label} {field.required && <span className="text-destructive">*</span>}</Label>
+                                                        {field.type === 'text' && <Input id={fieldName} className="h-11 rounded-xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" placeholder={`Enter ${field.label.toLowerCase()}`} onChange={(e) => setFormData({ ...formData, [fieldName]: e.target.value })} required={field.required} />}
+                                                        {field.type === 'phone' && <Input id={fieldName} type="tel" className="h-11 rounded-xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" placeholder="Enter phone number" onChange={(e) => setFormData({ ...formData, [fieldName]: e.target.value })} required={field.required} />}
                                                         {field.type === 'image' && (
                                                             <div className="flex items-center gap-3">
                                                                 <Input id={fieldName} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && handleFileChange(fieldName, e.target.files[0])} ref={(el) => { if (el) fileInputRefs.current[fieldName] = el; }} />
@@ -276,7 +276,7 @@ export default function VerificationPage() {
                 </form>
                                 <div className="mt-6 space-y-2 border-t border-border/70 pt-4">
                                     {process.env.NODE_ENV !== 'production' && <Button type="button" variant="outline" className="w-full rounded-xl" onClick={handleDevReturnToDashboard}>Return to dashboard (dev)</Button>}
-                                    <Button variant="ghost" className="w-full text-muted-foreground" onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" />Log out</Button>
+                                    <Button variant="ghost" className="w-full text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white" onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" />Log out</Button>
                                 </div>
               </div>
             </div>
