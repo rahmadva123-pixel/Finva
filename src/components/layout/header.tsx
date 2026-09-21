@@ -70,6 +70,16 @@ interface CurrencySettings {
   mainWalletIcon?: string;
 }
 
+function getNotificationIcon(type?: string) {
+    const normalizedType = typeof type === 'string' ? type.toLowerCase() : '';
+    if (normalizedType.includes('approved') || normalizedType.includes('completed')) return <CheckCircle className="h-5 w-5 text-green-500" />;
+    if (normalizedType.includes('rejected')) return <XCircle className="h-5 w-5 text-red-500" />;
+    if (normalizedType.includes('pending')) return <Clock className="h-5 w-5 text-yellow-500" />;
+    if (normalizedType.includes('bonus') || normalizedType.includes('promo')) return <Gift className="h-5 w-5 text-yellow-500" />;
+    if (normalizedType.includes('invest')) return <TrendingUp className="h-5 w-5 text-blue-500" />;
+    return <CircleDollarSign className="h-5 w-5 text-muted-foreground" />;
+}
+
 export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }) {
   const { user, loading: authLoading } = useAuth();
   const { appLoading } = usePreloader();
@@ -185,10 +195,11 @@ export function Header({ onMobileNavToggle }: { onMobileNavToggle?: () => void }
   
   const handleMarkAsRead = async () => {
     if(!db || !user || unreadCount === 0) return;
-    const batch = writeBatch(db);
+    const firestore = db;
+    const batch = writeBatch(firestore);
     notifications.forEach(notification => {
         if (!notification.isRead) {
-            const notifRef = doc(db, "notifications", notification.id);
+            const notifRef = doc(firestore, "notifications", notification.id);
             batch.update(notifRef, { isRead: true });
         }
     });
