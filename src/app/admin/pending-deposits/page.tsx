@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { AdminLayout } from "@/components/layout/admin-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, doc, updateDoc, getDoc, writeBatch, serverTimestamp, addDoc, runTransaction, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, getDoc, writeBatch, serverTimestamp, addDoc, runTransaction, deleteDoc, Timestamp } from 'firebase/firestore';
 import { Loader2, Check, X, User, ArrowRight, Phone, FileImage, Trash2, Download } from 'lucide-react';
 import { TradingCard } from '@/components/ui/trading-card';
 import { Button } from '@/components/ui/button';
@@ -339,6 +339,7 @@ export default function AdminPendingDepositsPage() {
                                             status: 'claimable',
                                             claimed: false,
                                             createdAt: serverTimestamp(),
+                                            availableAt: Timestamp.fromMillis(Date.now() + 24 * 60 * 60 * 1000),
                                             description: `Claimable refreshment bonus for referring user ${deposit.userId}`
                                         });
 

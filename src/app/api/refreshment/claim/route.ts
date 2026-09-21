@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import admin, { getFirebaseAdminAuth, getFirebaseAdminDb, isFirebaseAdminConfigured } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
+import { getFirebaseAdminAuth, getFirebaseAdminDb, isFirebaseAdminConfigured } from '@/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
@@ -11,6 +12,7 @@ export async function POST(req: Request) {
     if (!isFirebaseAdminConfigured()) return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
     const adminAuth = getFirebaseAdminAuth();
     const adminDb = getFirebaseAdminDb();
+    if (!adminAuth || !adminDb) return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
 
     const decoded = await adminAuth.verifyIdToken(idToken);
     const uid = decoded.uid;
@@ -19,7 +21,7 @@ export async function POST(req: Request) {
     const bonusId = body?.id;
     if (!bonusId) return NextResponse.json({ error: 'Missing bonus id' }, { status: 400 });
 
-    await adminDb.runTransaction(async (tx) => {
+    await adminDb.runTransaction(async (tx: any) => {
       const bonusRef = adminDb.collection('refreshmentBonuses').doc(bonusId);
       const bonusSnap = await tx.get(bonusRef);
       if (!bonusSnap.exists) throw new Error('Bonus not found');
@@ -27,8 +29,20 @@ export async function POST(req: Request) {
       if (data.claimed) throw new Error('Already claimed');
       if (data.userId !== uid) throw new Error('Not allowed to claim this bonus');
 
+      const timestampToMillis = (value: any) => {
+        if (!value) return 0;
+        if (typeof value.toMillis === 'function') return value.toMillis();
+        if (typeof value.seconds === 'number') return value.seconds * 1000;
+        if (typeof value === 'number') return value;
+        return 0;
+      };
+      const availableAt = timestampToMillis(data.availableAt) || timestampToMillis(data.createdAt) + 24 * 60 * 60 * 1000;
+      if (Date.now() < availableAt) {
+        throw new Error('This refreshment bonus will be available after the 24-hour waiting period.');
+      }
+
       // mark claimed
-      tx.update(bonusRef, { claimed: true, claimedAt: admin.firestore.FieldValue.serverTimestamp(), status: 'claimed' });
+      tx.update(bonusRef, { claimed: true, claimedAt: FieldValue.serverTimestamp(), status: 'claimed' });
 
       // credit user balance
       const userRef = adminDb.collection('users').doc(uid);
@@ -44,7 +58,7 @@ export async function POST(req: Request) {
         amount: Number(data.amount || 0),
         title: 'Refreshment Bonus Claimed',
         description: `Claimed refreshment bonus for referring ${data.referredUserId}`,
-        date: admin.firestore.FieldValue.serverTimestamp(),
+        date: FieldValue.serverTimestamp(),
         type: 'refreshmentBonus'
       });
 
@@ -55,7 +69,7 @@ export async function POST(req: Request) {
         title: 'Refreshment Bonus Claimed',
         description: `You claimed a refreshment bonus of ${data.amount}.`,
         isRead: false,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
         link: '/dashboard/finance/wallet',
         type: 'refreshmentBonus'
       });

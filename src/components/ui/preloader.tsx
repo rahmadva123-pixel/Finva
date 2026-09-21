@@ -60,16 +60,14 @@ export const Preloader = () => {
         
         {/* Main centered content */}
         <div className="flex flex-col items-center justify-center gap-4">
-            <div className="relative w-48 h-16 animate-splash-logo">
-                {settings.preloaderLogoUrl && !loading && (
-                    <Image
-                        src={settings.preloaderLogoUrl}
-                        alt="Loading Logo"
-                        layout="fill"
-                        objectFit="contain"
-                        priority
-                    />
-                )}
+            <div className="relative h-20 w-20 animate-splash-logo">
+              <Image
+                src="/icon.jpeg"
+                alt="Finva"
+                layout="fill"
+                objectFit="contain"
+                priority
+              />
             </div>
 
             {(settings.preloaderPoweredByText || settings.preloaderPoweredByLogo) && (

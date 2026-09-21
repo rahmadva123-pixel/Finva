@@ -13,6 +13,33 @@ export default function RefreshmentBonusPage() {
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [bonuses, setBonuses] = useState<any[]>([]);
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const timestampToMillis = (value: any) => {
+    if (!value) return 0;
+    if (typeof value.toMillis === 'function') return value.toMillis();
+    if (typeof value.seconds === 'number') return value.seconds * 1000;
+    if (typeof value === 'number') return value;
+    return 0;
+  };
+
+  const getAvailableAt = (bonus: any) => {
+    const explicitTime = timestampToMillis(bonus.availableAt);
+    return explicitTime || timestampToMillis(bonus.createdAt) + 24 * 60 * 60 * 1000;
+  };
+
+  const formatCountdown = (milliseconds: number) => {
+    const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+  };
 
   useEffect(() => {
     const fetch = async () => {
@@ -62,12 +89,19 @@ export default function RefreshmentBonusPage() {
                       <div className="text-xs text-muted-foreground">{b.createdAt?.seconds ? format(new Date(b.createdAt.seconds * 1000), 'PPP') : 'N/A'}</div>
                       {!b.claimed && b.status === 'claimable' ? (
                         <div className="mt-2">
-                          <button
+                          {now < getAvailableAt(b) ? (
+                            <div className="rounded bg-muted px-3 py-1 text-xs text-muted-foreground">
+                              Claim available in {formatCountdown(getAvailableAt(b) - now)}
+                            </div>
+                          ) : <button
                             className="px-3 py-1 rounded bg-primary text-white text-sm"
                             onClick={async () => {
                               try {
+                                const currentAuth = auth;
+                                const firestore = db;
+                                if (!currentAuth || !firestore) throw new Error('Firebase is not initialized');
                                 setLoading(true);
-                                const token = await auth.currentUser?.getIdToken();
+                                const token = await currentAuth.currentUser?.getIdToken();
                                 if (!token) throw new Error('Not authenticated');
                                 const res = await fetch('/api/refreshment/claim', {
                                   method: 'POST',
@@ -77,7 +111,7 @@ export default function RefreshmentBonusPage() {
                                 const json = await res.json();
                                 if (!res.ok) throw new Error(json?.error || 'Claim failed');
                                 // refresh list
-                                const q = query(collection(db, 'refreshmentBonuses'), where('userId', '==', auth.currentUser?.uid), orderBy('createdAt', 'desc'));
+                                const q = query(collection(firestore, 'refreshmentBonuses'), where('userId', '==', currentAuth.currentUser?.uid), orderBy('createdAt', 'desc'));
                                 const snap = await getDocs(q);
                                 setBonuses(snap.docs.map(d => ({ id: d.id, ...(d.data() as any) })));
                                 setLoading(false);
@@ -87,8 +121,8 @@ export default function RefreshmentBonusPage() {
                               }
                             }}
                           >
-                            Claim $50
-                          </button>
+                            Claim ${Number(b.amount || 0).toFixed(2)}
+                          </button>}
                         </div>
                       ) : null}
                     </div>
