@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, getDoc, writeBatch, serverTimestamp, addDoc, runTransaction, deleteDoc } from 'firebase/firestore';
 import { Loader2, Check, X, User, ArrowRight, Phone, FileImage, Trash2, Download } from 'lucide-react';
+import { TradingCard } from '@/components/ui/trading-card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -58,17 +59,17 @@ export default function AdminPendingDepositsPage() {
         }
         setLoading(true);
         try {
-            const generalSettingsDoc = await getDoc(doc(db, 'settings', 'general'));
+                const generalSettingsDoc = await getDoc(doc(db!, 'settings', 'general'));
             if (generalSettingsDoc.exists()) {
                 setLogoUrl(generalSettingsDoc.data().logoUrl || '');
             }
 
-            const currencyDoc = await getDoc(doc(db, "settings", "currency"));
+            const currencyDoc = await getDoc(doc(db!, "settings", "currency"));
             if (currencyDoc.exists()) {
               setCurrency(currencyDoc.data() as CurrencySettings);
             }
             
-            const notificationSettingsDoc = await getDoc(doc(db, 'settings', 'notifications'));
+            const notificationSettingsDoc = await getDoc(doc(db!, 'settings', 'notifications'));
             if (notificationSettingsDoc.exists()) {
                 setNotificationSettings(notificationSettingsDoc.data());
             }
@@ -78,8 +79,8 @@ export default function AdminPendingDepositsPage() {
             const depositsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Deposit[];
 
             // Fetch user data for each deposit
-            const depositsWithUsers = await Promise.all(depositsData.map(async (deposit) => {
-                const userDoc = await getDoc(doc(db, "users", deposit.userId));
+                const depositsWithUsers = await Promise.all(depositsData.map(async (deposit) => {
+                const userDoc = await getDoc(doc(db!, "users", deposit.userId));
                 if (userDoc.exists()) {
                     return { ...deposit, user: userDoc.data() as { email: string, uid: string, referredBy?: string } };
                 }
@@ -102,24 +103,24 @@ export default function AdminPendingDepositsPage() {
         if (!db || !deposit.user) return;
         setProcessingId(deposit.id);
 
-        const depositRef = doc(db, "deposits", deposit.id);
+        const depositRef = doc(db!, "deposits", deposit.id);
 
         try {
             if (newStatus === 'completed') {
-                const earningRulesDocRef = doc(db, 'settings', 'earningRules');
+                const earningRulesDocRef = doc(db!, 'settings', 'earningRules');
                 const [earningRulesDoc] = await Promise.all([
                     getDoc(earningRulesDocRef),
                 ]);
 
                 const directReferrerId = deposit.user.referredBy;
                 // Read refreshment settings (enable + amount)
-                const refreshSettingsRef = doc(db, 'settings', 'refreshment');
+                const refreshSettingsRef = doc(db!, 'settings', 'refreshment');
                 const refreshSettingsSnap = await getDoc(refreshSettingsRef);
                 const refreshmentEnabled = refreshSettingsSnap.exists() ? (refreshSettingsSnap.data().enabled ?? true) : false;
                 const refreshmentAmount = refreshSettingsSnap.exists() ? (Number(refreshSettingsSnap.data().amount) || 50) : 50;
                 const refreshmentAutoCredit = refreshSettingsSnap.exists() ? Boolean(refreshSettingsSnap.data().autoCredit) : false;
                 // Referral settings removed: always use current new referral rules
-                const userRef = doc(db, "users", deposit.userId);
+                const userRef = doc(db!, "users", deposit.userId);
 
                 await runTransaction(db, async (transaction) => {
                     const depositDoc = await transaction.get(depositRef);
@@ -135,7 +136,7 @@ export default function AdminPendingDepositsPage() {
                     // Read referrer doc if needed (before any writes)
                     let referrerDoc = null;
                     if (directReferrerId) {
-                        const referrerRef = doc(db, "users", directReferrerId);
+                        const referrerRef = doc(db!, "users", directReferrerId);
                         referrerDoc = await transaction.get(referrerRef);
                     }
 
@@ -147,109 +148,135 @@ export default function AdminPendingDepositsPage() {
 
                     let bonusAmount = 0;
 
-                    // Determine which referral rules apply based on when the user was referred
-                    // Always apply the current referral bonus percentage (new rules)
-                    const bonusPercentage = 13; // default new rule
-
-                    // Apply referral bonus if user was referred and referrer exists
+                    // Apply referral bonuses only on the referred user's FIRST completed deposit
                     if (directReferrerId && referrerDoc && referrerDoc.exists()) {
-                        // bonusPercentage determined above
-                        bonusAmount = Number(((deposit.amount * bonusPercentage) / 100).toFixed(2));
-
-                            if (bonusAmount > 0) {
-                            // Credit referrer (ensure full credit regardless of earning-power ledger)
-                            try {
-                                const referrerRef2 = doc(db, "users", directReferrerId);
-                                const refData = referrerDoc.data();
-                                const refBalance = refData.balance || 0;
-                                const refTotalEarning = refData.totalEarning || 0;
-                                transaction.update(referrerRef2, {
-                                    balance: Number((refBalance + bonusAmount).toFixed(2)),
-                                    totalEarning: Number((refTotalEarning + bonusAmount).toFixed(2))
-                                });
-                            } catch (e) {
-                                // fallback to addEarning if anything goes wrong
-                                await addEarning(transaction, directReferrerId, bonusAmount, referrerDoc, earningRulesDoc);
-                            }
-
-                            // Credit referred user (include the deposited capital so we don't overwrite it later)
-                            await addEarning(transaction, deposit.userId, bonusAmount, userDoc, earningRulesDoc, finalAmount);
-
-                            // Log for referrer
-                            const commissionLogRef = doc(collection(db, 'referralCommissions'));
-                            transaction.set(commissionLogRef, {
-                                referrerId: directReferrerId,
-                                referredUserId: deposit.userId,
-                                amount: bonusAmount,
-                                type: 'referral_bonus',
-                                percentage: bonusPercentage,
-                                date: serverTimestamp(),
-                                description: `Instant ${bonusPercentage}% referral bonus on completed deposit`
-                            });
-
-                            // Bonus transaction for referrer
-                            const referrerBt = doc(collection(db, 'bonusTransactions'));
-                            transaction.set(referrerBt, {
-                                userId: directReferrerId,
-                                amount: bonusAmount,
-                                title: 'Referral Bonus Credited',
-                                description: `Referral bonus for referral ${deposit.userId}`,
-                                date: serverTimestamp(),
-                                type: 'referralBonus'
-                            });
-
-                            // Log for referred user (separate record)
-                            const referredLogRef = doc(collection(db, 'referralCommissions'));
-                            transaction.set(referredLogRef, {
-                                referrerId: directReferrerId,
-                                referredUserId: deposit.userId,
-                                amount: bonusAmount,
-                                type: 'referral_bonus_referred',
-                                percentage: bonusPercentage,
-                                date: serverTimestamp(),
-                                description: `Instant ${bonusPercentage}% bonus credited to referred user on their completed deposit`
-                            });
-
-                            // Bonus transaction for referred user
-                            const referredBt = doc(collection(db, 'bonusTransactions'));
-                            transaction.set(referredBt, {
-                                userId: deposit.userId,
-                                amount: bonusAmount,
-                                title: 'Referral Bonus Received',
-                                description: `Referral bonus from ${directReferrerId} for deposit ${deposit.id}`,
-                                date: serverTimestamp(),
-                                type: 'referralBonus'
-                            });
-
-                            // Notifications
-                            if (notificationSettings.referralBonus) {
-                                const notificationRef = doc(collection(db, "notifications"));
-                                transaction.set(notificationRef, {
-                                    userId: directReferrerId,
-                                    title: "Referral bonus earned!",
-                                    description: `You received ${formatCurrency(bonusAmount)} (${bonusPercentage}%) from your referral's deposit of ${formatCurrency(deposit.amount)}.`,
-                                    isRead: false,
-                                    createdAt: serverTimestamp(),
-                                    link: '/dashboard/referral',
-                                    type: 'referralBonus'
-                                });
-
-                                const notificationRef2 = doc(collection(db, "notifications"));
-                                transaction.set(notificationRef2, {
-                                    userId: deposit.userId,
-                                    title: "Referral bonus received!",
-                                    description: `You received ${formatCurrency(bonusAmount)} (${bonusPercentage}%) as a referral bonus on your deposit of ${formatCurrency(deposit.amount)}.`,
-                                    isRead: false,
-                                    createdAt: serverTimestamp(),
-                                    link: '/dashboard/finance/history',
-                                    type: 'referralBonus'
-                                });
+                        // detect if this user already has a completed/approved deposit (excluding this one)
+                        const otherCompleted = await getDocs(query(collection(db!, 'deposits'), where('userId', '==', deposit.userId)));
+                        let hasOtherCompleted = false;
+                        for (const d of otherCompleted.docs) {
+                            const dd: any = d.data();
+                            const status = String(dd.status || '').toLowerCase();
+                            // ignore the current deposit id
+                            if (d.id === deposit.id) continue;
+                            if (status === 'completed' || status === 'approved') {
+                                hasOtherCompleted = true;
+                                break;
                             }
                         }
+
+                        // only credit referral bonuses if this is the first completed deposit
+                        if (!hasOtherCompleted) {
+                            const referrerPct = 15; // referrer receives 15%
+                            const referredPct = 10; // referred user receives 10%
+                            const referrerBonus = Number(((deposit.amount * referrerPct) / 100).toFixed(2));
+                            const referredBonus = Number(((deposit.amount * referredPct) / 100).toFixed(2));
+
+                            // mark referral processed on deposit to prevent double processing
+                            transaction.update(depositRef, { referralProcessed: true });
+
+                            // Credit referrer
+                            if (referrerBonus > 0) {
+                                const referrerRef2 = doc(db!, "users", directReferrerId);
+                                const refData = referrerDoc.data();
+                                const refBalance = Number(refData.balance || 0);
+                                const refTotalEarning = Number(refData.totalEarning || 0);
+                                transaction.update(referrerRef2, {
+                                    balance: Number((refBalance + referrerBonus).toFixed(2)),
+                                    totalEarning: Number((refTotalEarning + referrerBonus).toFixed(2))
+                                });
+
+                                const commissionLogRef = doc(collection(db!, 'referralCommissions'));
+                                transaction.set(commissionLogRef, {
+                                    referrerId: directReferrerId,
+                                    referredUserId: deposit.userId,
+                                    depositId: deposit.id,
+                                    depositAmount: Number(deposit.amount || 0),
+                                    amount: referrerBonus,
+                                    role: 'referrer',
+                                    percentage: referrerPct,
+                                    status: 'credited',
+                                    date: serverTimestamp(),
+                                    description: `Referral bonus (${referrerPct}%) credited to referrer for deposit ${deposit.id}`
+                                });
+
+                                const referrerBt = doc(collection(db!, 'bonusTransactions'));
+                                transaction.set(referrerBt, {
+                                    userId: directReferrerId,
+                                    amount: referrerBonus,
+                                    title: 'Referral Bonus Credited',
+                                    description: `Referral bonus (${referrerPct}%) — credited from deposit ${deposit.id} by user ${deposit.userId}`,
+                                    date: serverTimestamp(),
+                                    type: 'referralBonus'
+                                });
+
+                                if (notificationSettings.referralBonus) {
+                                    const notificationRef = doc(collection(db!, "notifications"));
+                                    transaction.set(notificationRef, {
+                                        userId: directReferrerId,
+                                        title: "Referral bonus earned",
+                                        description: `You received ${formatCurrency(referrerBonus)} (${referrerPct}%) from your referral's first deposit of ${formatCurrency(deposit.amount)}.`,
+                                        isRead: false,
+                                        createdAt: serverTimestamp(),
+                                        link: '/dashboard/referral',
+                                        type: 'referralBonus'
+                                    });
+                                }
+                            }
+
+                            // Credit referred user
+                            if (referredBonus > 0) {
+                                const userRef2 = doc(db!, "users", deposit.userId);
+                                const userDataCurrent = userDoc.data();
+                                const userBalance = Number(userDataCurrent.balance || 0);
+                                const userTotalEarning = Number(userDataCurrent.totalEarning || 0);
+                                transaction.update(userRef2, {
+                                    balance: Number((userBalance + referredBonus).toFixed(2)),
+                                    totalEarning: Number((userTotalEarning + referredBonus).toFixed(2))
+                                });
+
+                                const referredLogRef = doc(collection(db!, 'referralCommissions'));
+                                transaction.set(referredLogRef, {
+                                    referrerId: directReferrerId,
+                                    referredUserId: deposit.userId,
+                                    depositId: deposit.id,
+                                    depositAmount: Number(deposit.amount || 0),
+                                    amount: referredBonus,
+                                    role: 'referred',
+                                    percentage: referredPct,
+                                    status: 'credited',
+                                    date: serverTimestamp(),
+                                    description: `Referral reward (${referredPct}%) credited to referred user for deposit ${deposit.id}`
+                                });
+
+                                const referredBt = doc(collection(db!, 'bonusTransactions'));
+                                transaction.set(referredBt, {
+                                    userId: deposit.userId,
+                                    amount: referredBonus,
+                                    title: 'Referral Bonus Received',
+                                    description: `Referral reward (${referredPct}%) — credited for deposit ${deposit.id}`,
+                                    date: serverTimestamp(),
+                                    type: 'referralBonus'
+                                });
+
+                                if (notificationSettings.referralBonus) {
+                                    const notificationRef2 = doc(collection(db!, "notifications"));
+                                    transaction.set(notificationRef2, {
+                                        userId: deposit.userId,
+                                        title: "Referral bonus received",
+                                        description: `You received ${formatCurrency(referredBonus)} (${referredPct}%) as a referral reward on your first deposit of ${formatCurrency(deposit.amount)}.`,
+                                        isRead: false,
+                                        createdAt: serverTimestamp(),
+                                        link: '/dashboard/finance/history',
+                                        type: 'referralBonus'
+                                    });
+                                }
+                            }
+                        }
+                    }
                             // Create a claimable refreshment bonus for the referrer (admin-configured amount)
                             try {
                                 if (refreshmentEnabled && directReferrerId) {
-                                    const refreshRef = doc(collection(db, 'refreshmentBonuses'));
+                                    const refreshRef = doc(collection(db!, 'refreshmentBonuses'));
                                     if (refreshmentAutoCredit) {
                                         // Auto-credit the refreshment bonus immediately
                                         transaction.set(refreshRef, {
@@ -266,10 +293,10 @@ export default function AdminPendingDepositsPage() {
 
                                         // Credit referrer balance and totalEarning directly to ensure full credit
                                         try {
-                                            const referrerRef3 = doc(db, "users", directReferrerId);
-                                            const refData2 = referrerDoc.data();
-                                            const refBal2 = refData2.balance || 0;
-                                            const refTotal2 = refData2.totalEarning || 0;
+                                            const referrerRef3 = doc(db!, "users", directReferrerId);
+                                            const refData2 = referrerDoc?.data() || {};
+                                            const refBal2 = Number(refData2.balance || 0);
+                                            const refTotal2 = Number(refData2.totalEarning || 0);
                                             transaction.update(referrerRef3, {
                                                 balance: Number((refBal2 + refreshmentAmount).toFixed(2)),
                                                 totalEarning: Number((refTotal2 + refreshmentAmount).toFixed(2))
@@ -279,7 +306,7 @@ export default function AdminPendingDepositsPage() {
                                         }
 
                                         // Log bonus transaction
-                                        const bt = doc(collection(db, 'bonusTransactions'));
+                                        const bt = doc(collection(db!, 'bonusTransactions'));
                                         transaction.set(bt, {
                                             userId: directReferrerId,
                                             amount: refreshmentAmount,
@@ -291,7 +318,7 @@ export default function AdminPendingDepositsPage() {
 
                                         // Notification
                                         if (notificationSettings.refreshmentBonus) {
-                                            const nb = doc(collection(db, 'notifications'));
+                                            const nb = doc(collection(db!, 'notifications'));
                                             transaction.set(nb, {
                                                 userId: directReferrerId,
                                                 title: 'Refreshment Bonus Credited',
@@ -316,7 +343,7 @@ export default function AdminPendingDepositsPage() {
                                         });
 
                                         if (notificationSettings.refreshmentBonus) {
-                                            const nb = doc(collection(db, 'notifications'));
+                                            const nb = doc(collection(db!, 'notifications'));
                                             transaction.set(nb, {
                                                 userId: directReferrerId,
                                                 title: 'Refreshment Bonus Available',
@@ -332,13 +359,22 @@ export default function AdminPendingDepositsPage() {
                             } catch (e) {
                                 console.warn('Failed to create refreshment bonus', e);
                             }
-                    }
-
-                        // Ensure deposit amount is credited if it wasn't credited above via addEarning
-                        if (!(bonusAmount > 0 && directReferrerId && referrerDoc && referrerDoc.exists())) {
-                            await addEarning(transaction, deposit.userId, 0, userDoc, earningRulesDoc, finalAmount);
-                        }
-                });
+                            // Ensure deposit amount is credited (credit the deposited amount to user's earnings/balance)
+                            try {
+                                await addEarning(transaction, deposit.userId, 0, userDoc, earningRulesDoc, finalAmount);
+                            } catch (e) {
+                                console.warn('Failed to credit deposit amount via addEarning', e);
+                                // As a fallback, ensure the user's balance is incremented directly
+                                try {
+                                    const userRef2 = doc(db!, 'users', deposit.userId);
+                                    const curData = userDoc.data();
+                                    const curBal = Number(curData.balance || 0);
+                                    transaction.update(userRef2, { balance: Number((curBal + Number(finalAmount || 0)).toFixed(2)) });
+                                } catch (err) {
+                                    console.error('Fallback credit failed', err);
+                                }
+                            }
+                        });
 
                                 // After transaction success, ensure qualification is created if referred user reached the threshold
                                 try {
@@ -394,7 +430,7 @@ export default function AdminPendingDepositsPage() {
         if (!db) return;
         setProcessingId(depositId);
         try {
-            await deleteDoc(doc(db, "deposits", depositId));
+                 await deleteDoc(doc(db!, "deposits", depositId));
             toast({ title: "Success", description: "Deposit record has been deleted." });
             fetchDeposits();
         } catch (error: any) {
@@ -458,7 +494,7 @@ export default function AdminPendingDepositsPage() {
         const pdfDoc = new jsPDF();
         let startY = 15;
 
-        const generalSettingsDoc = await getDoc(doc(db, 'settings', 'general'));
+        const generalSettingsDoc = await getDoc(doc(db!, 'settings', 'general'));
         const brandingData = generalSettingsDoc.exists() ? generalSettingsDoc.data() : {};
         const { 
             companyName = 'My App', 

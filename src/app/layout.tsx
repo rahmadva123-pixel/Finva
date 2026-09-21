@@ -41,7 +41,7 @@ export default function RootLayout({
                 <Favicon />
                 <SiteTitleUpdater />
                 <main className="flex-grow">
-                  <div className="mx-auto w-full max-w-[640px] px-4 sm:px-6">{children}</div>
+                  <div className="mx-auto w-full max-w-full sm:max-w-[640px] px-4 sm:px-6 debug-main">{children}</div>
                 </main>
                 <Footer />
                 <LiveChat />

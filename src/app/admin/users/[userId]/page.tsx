@@ -5,7 +5,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from "@/components/layout/admin-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, getDoc, query, where, orderBy, runTransaction, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Loader2, ArrowLeft, Download, CheckCircle, XCircle } from 'lucide-react';
@@ -142,7 +141,6 @@ const Countdown = ({ nextReturn, lastReturn }: { nextReturn?: any; lastReturn?: 
 
 export default function UserDetailPage() {
   const { toast } = useToast();
-    const { user: currentUser } = useAuth();
   const router = useRouter();
   const params = useParams();
   const userId = params.userId as string;
@@ -156,7 +154,6 @@ export default function UserDetailPage() {
   const [pools, setPools] = useState<{ active: Pool[], completed: Pool[] }>({ active: [], completed: [] });
   const [totalEarning, setTotalEarning] = useState(0);
         // per-user withdrawal fee overrides removed — platform enforces flat 20% fee
-    const [withdrawAllowedWithoutReferral, setWithdrawAllowedWithoutReferral] = useState<boolean>(false);
     const [withdrawalFeePercent, setWithdrawalFeePercent] = useState<number | null>(null);
     const [logoUrl, setLogoUrl] = useState('');
 
@@ -240,24 +237,6 @@ export default function UserDetailPage() {
   }, [userId, router, toast]);
 
     // per-user fee saving removed — admin API will delete any custom fee
-
-  const handleToggleWithdrawOverride = async () => {
-      if (!userId || !currentUser) return;
-      try {
-          const idToken = await currentUser.getIdToken();
-          const res = await fetch(`/api/admin/users/${userId}/withdraw-override`, {
-              method: 'POST',
-              headers: { 'content-type': 'application/json', authorization: `Bearer ${idToken}` },
-              body: JSON.stringify({ allow: !withdrawAllowedWithoutReferral }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data?.error || 'Failed to update');
-          toast({ title: 'Updated', description: withdrawAllowedWithoutReferral ? 'Override revoked.' : 'Override granted.' });
-          fetchUserData();
-      } catch (e: any) {
-          toast({ variant: 'destructive', title: 'Error', description: e.message });
-      }
-  }
 
   useEffect(() => {
     fetchUserData();
@@ -537,29 +516,6 @@ export default function UserDetailPage() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            
-            <div className="mt-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Admin Withdrawal Override</CardTitle>
-                        <CardDescription>Allow this user to withdraw without meeting referral requirements.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="font-semibold">{withdrawAllowedWithoutReferral ? 'Allowed' : 'Not Allowed'}</p>
-                                <p className="text-sm text-muted-foreground">{withdrawAllowedWithoutReferral ? 'User can withdraw without referring anyone.' : 'User must meet referral requirements to withdraw.'}</p>
-                            </div>
-                            <div>
-                                <Button variant={withdrawAllowedWithoutReferral ? 'destructive' : 'default'} onClick={handleToggleWithdrawOverride}>
-                                    {withdrawAllowedWithoutReferral ? 'Revoke Override' : 'Allow Withdraw Without Referral'}
-                                </Button>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card>

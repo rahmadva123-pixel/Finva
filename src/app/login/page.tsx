@@ -21,30 +21,28 @@ function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
   const [title, setTitle] = useState("Access Your Trading Account");
-  const [subtitle, setSubtitle] = useState("Choose Email or Phone to sign in. You can also request a magic link to your inbox.");
+  const [subtitle, setSubtitle] = useState("Sign in to continue.");
   const [humanConfirmed, setHumanConfirmed] = useState(false);
   const [humanPending, setHumanPending] = useState(false);
   const humanTimerRef = useRef<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [processing, setProcessing] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isLocalDev = process.env.NODE_ENV !== "production";
   const localDevEmail = "user@local.test";
   const localDevPassword = "User@123456";
 
   useEffect(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('finva_remember_email') : null;
-    if (stored) {
-      try {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('finva_remember_email') : null;
+      if (stored) {
         const parsed = JSON.parse(stored || 'null');
         if (parsed?.email) {
           const el = document.querySelector('#email') as HTMLInputElement | null;
           if (el) el.value = parsed.email;
-          setRememberMe(true);
         }
-      } catch {}
-    }
+      }
+    } catch {}
     const fetchContent = async () => {
         if (!db) return;
         const docRef = doc(db, 'template', 'landingPage');
@@ -52,7 +50,7 @@ function LoginForm() {
         if (docSnap.exists()) {
             const data = docSnap.data();
             setTitle(data.loginTitle || "Welcome Back");
-            setSubtitle(data.loginSubtitle || "Enter your credentials to access your account.");
+            setSubtitle(data.loginSubtitle || "Sign in to continue.");
         }
     };
     fetchContent();
@@ -82,14 +80,7 @@ function LoginForm() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // persist remembered email if requested (does not affect auth)
-      try {
-        if (rememberMe) {
-          localStorage.setItem('finva_remember_email', JSON.stringify({ email }));
-        } else {
-          localStorage.removeItem('finva_remember_email');
-        }
-      } catch {}
+      // previously we optionally persisted an email; keep existing stored email unchanged
 
       let emailVerificationEnabled = false;
       if (db) {
@@ -195,7 +186,7 @@ function LoginForm() {
       </svg>
 
       <div className="w-full max-w-[380px] mx-auto px-4 sm:max-w-[420px]">
-        <div className="relative rounded-2xl bg-card/95 border border-border/60 p-6 shadow-xl overflow-hidden animate-float-y">
+        <div className="relative rounded-2xl bg-card/95 border border-border/60 p-6 shadow-xl overflow-hidden animate-float-y max-h-[88vh]">
           <div className="absolute left-0 top-0 h-full w-1.5 bg-primary/90"></div>
           <div className="mb-4 text-center ml-3">
             <div className="mx-auto h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">🔐</div>
@@ -225,12 +216,7 @@ function LoginForm() {
               </div>
             </div>
 
-            <div className="flex items-center">
-              <label className="inline-flex items-center text-sm">
-                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="h-4 w-4 rounded border" />
-                <span className="ml-2">Keep me signed in on this device</span>
-              </label>
-            </div>
+            {/* only human verification checkbox remains */}
 
             <div className="flex items-center mt-1">
               <label className="inline-flex items-center text-sm">
@@ -269,6 +255,8 @@ function LoginForm() {
               <Link href="/forgot-password" className="text-primary">Trouble signing in? Reset</Link>
               <Link href="/signup" className="text-muted-foreground">Open an Account</Link>
             </div>
+
+            {/* Download App button removed per request */}
 
             <div className="text-center text-xs text-muted-foreground mt-2">Two-factor enabled accounts may require extra verification</div>
           </form>

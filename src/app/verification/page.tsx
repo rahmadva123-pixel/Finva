@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, query, where } from 'firebase/firestore';
 import { useAuth } from '@/hooks/use-auth';
-import { Loader2, FileImage, Phone, LogOut } from 'lucide-react';
+import { Loader2, FileImage, LogOut, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -202,7 +202,7 @@ export default function VerificationPage() {
                 submittedAt: new Date(),
             });
 
-            await setDoc(doc(db, 'users', user.uid), { verificationStatus: 'pending' }, { merge: true });
+            await setDoc(doc(db, 'users', user.uid), { verificationStatus: 'pending', devForceUnverified: false }, { merge: true });
 
             toast({ title: 'Success', description: 'Your verification details have been submitted for review.' });
             router.push('/verification/pending');
@@ -220,74 +220,66 @@ export default function VerificationPage() {
             router.push('/login');
         }
     }
+
+    const handleDevReturnToDashboard = async () => {
+        if (!user || !db || process.env.NODE_ENV === 'production') return;
+        await setDoc(doc(db, 'users', user.uid), { verificationStatus: 'verified', devForceUnverified: false }, { merge: true });
+        router.push('/dashboard');
+    };
     
     if (loading) {
         return <AuthLayout><div className="flex items-center justify-center p-8"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div></AuthLayout>
     }
 
     return (
-        <AuthLayout>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-2xl font-headline">Identity Verification</CardTitle>
-                    <CardDescription>Please submit your details for verification to continue.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <Label>Document Type</Label>
-                            <Select onValueChange={(id) => setSelectedMethod(methods.find(m => m.id === id) || null)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a document to submit" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {methods.map(method => (
-                                        <SelectItem key={method.id} value={method.id}>{method.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+        <AuthLayout wide>
+                      <div className="min-h-[min(720px,calc(100vh-2rem))] w-full overflow-hidden rounded-2xl border border-border/70 bg-card shadow-lg sm:rounded-3xl">
+                        <div className="border-b bg-[var(--topbar-background)] px-5 py-5 text-white sm:px-8">
+                            <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary"><ShieldCheck className="h-5 w-5" /></div><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">Finva verification</p><h1 className="mt-1 text-xl font-bold font-headline">Verify your identity</h1></div></div>
                         </div>
-                        
-                        {selectedMethod && (
-                            <div className="space-y-4 pt-4 border-t">
-                                {selectedMethod.fields.map(field => {
-                                    const fieldName = field.label.replace(/\s+/g, '_').toLowerCase();
-                                    return (
-                                        <div key={field.id} className="space-y-2">
-                                            <Label htmlFor={fieldName}>{field.label} {field.required && <span className="text-destructive">*</span>}</Label>
-                                            {field.type === 'text' && <Input id={fieldName} onChange={e => setFormData({...formData, [fieldName]: e.target.value})} required={field.required} />}
-                                            {field.type === 'phone' && <Input id={fieldName} type="tel" onChange={e => setFormData({...formData, [fieldName]: e.target.value})} required={field.required} />}
-                                            {field.type === 'image' && (
-                                                <div className="flex items-center gap-4">
-                                                    <Input id={fieldName} type="file" accept="image/*" className="hidden" onChange={e => e.target.files && handleFileChange(fieldName, e.target.files[0])} ref={el => { if (el) fileInputRefs.current[fieldName] = el; }} />
-                                                    <Label htmlFor={fieldName} className="flex-grow cursor-pointer">
-                                                        <div className="flex items-center justify-center gap-2 p-4 border-2 border-dashed rounded-lg text-muted-foreground hover:bg-muted/50">
-                                                            {uploadingField === fieldName ? <Loader2 className="h-5 w-5 animate-spin" /> : <FileImage className="h-5 w-5" />}
-                                                            <span>{formData[fieldName] ? "Image Selected" : "Click to upload"}</span>
-                                                        </div>
-                                                    </Label>
-                                                    {formData[fieldName] && <Image src={formData[fieldName] as string} alt="preview" width={64} height={64} className="rounded-md object-cover" />}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        )}
 
-                        <Button type="submit" className="w-full" disabled={!selectedMethod || submitting || !!uploadingField}>
-                            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
-                            Submit for Verification
-                        </Button>
-                    </form>
-                </CardContent>
-                <CardFooter>
-                     <Button variant="ghost" className="w-full text-muted-foreground" onClick={handleLogout}>
-                        <LogOut className="mr-2 h-4 w-4"/>
-                        Log Out
-                    </Button>
-                </CardFooter>
-            </Card>
+                            <div className="p-5 sm:p-8">
+                                <div className="mb-6"><h2 className="text-xl font-bold font-headline tracking-tight">Verification form</h2></div>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">Document type</Label>
+                    <Select onValueChange={(id) => setSelectedMethod(methods.find(m => m.id === id) || null)}><SelectTrigger className="h-12 rounded-xl"><SelectValue placeholder="Select a document to submit" /></SelectTrigger><SelectContent>{methods.map(method => <SelectItem key={method.id} value={method.id}>{method.name}</SelectItem>)}</SelectContent></Select>
+                  </div>
+                                    {selectedMethod && (
+                                        <div className="space-y-5 border-t border-border/70 pt-5">
+                                            <p className="text-sm font-semibold">{selectedMethod.name}</p>
+                                            {selectedMethod.fields.map((field) => {
+                                                const fieldName = field.label.replace(/\s+/g, '_').toLowerCase();
+                                                return (
+                                                    <div key={field.id} className="space-y-2">
+                                                        <Label htmlFor={fieldName}>{field.label} {field.required && <span className="text-destructive">*</span>}</Label>
+                                                        {field.type === 'text' && <Input id={fieldName} className="h-11 rounded-xl" placeholder={`Enter ${field.label.toLowerCase()}`} onChange={(e) => setFormData({ ...formData, [fieldName]: e.target.value })} required={field.required} />}
+                                                        {field.type === 'phone' && <Input id={fieldName} type="tel" className="h-11 rounded-xl" placeholder="Enter phone number" onChange={(e) => setFormData({ ...formData, [fieldName]: e.target.value })} required={field.required} />}
+                                                        {field.type === 'image' && (
+                                                            <div className="flex items-center gap-3">
+                                                                <Input id={fieldName} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && handleFileChange(fieldName, e.target.files[0])} ref={(el) => { if (el) fileInputRefs.current[fieldName] = el; }} />
+                                                                <Label htmlFor={fieldName} className="flex-1 cursor-pointer">
+                                                                    <div className="flex min-h-20 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-3 text-sm text-primary hover:bg-primary/10">
+                                                                        {uploadingField === fieldName ? <Loader2 className="h-5 w-5 animate-spin" /> : <FileImage className="h-5 w-5" />}
+                                                                        <span>{formData[fieldName] ? 'Image selected' : 'Upload image'}</span>
+                                                                    </div>
+                                                                </Label>
+                                                                {formData[fieldName] && <Image src={formData[fieldName] as string} alt="preview" width={56} height={56} className="rounded-xl border object-cover" />}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                  <Button type="submit" className="h-12 w-full rounded-xl bg-[var(--topbar-background)] text-white hover:bg-primary dark:bg-secondary dark:text-secondary-foreground" disabled={!selectedMethod || submitting || !!uploadingField}>{submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Submit for verification</Button>
+                </form>
+                                <div className="mt-6 space-y-2 border-t border-border/70 pt-4">
+                                    {process.env.NODE_ENV !== 'production' && <Button type="button" variant="outline" className="w-full rounded-xl" onClick={handleDevReturnToDashboard}>Return to dashboard (dev)</Button>}
+                                    <Button variant="ghost" className="w-full text-muted-foreground" onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" />Log out</Button>
+                                </div>
+              </div>
+            </div>
         </AuthLayout>
     );
 }

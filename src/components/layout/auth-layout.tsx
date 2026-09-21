@@ -14,7 +14,7 @@ interface BackgroundSettings {
     overlayColor: string;
 }
 
-export function AuthLayout({ children }: { children: ReactNode }) {
+export function AuthLayout({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   const [logoUrl, setLogoUrl] = useState('');
   const [logoText, setLogoText] = useState('');
   const [showLogoTextWithImage, setShowLogoTextWithImage] = useState(true);
@@ -82,8 +82,8 @@ export function AuthLayout({ children }: { children: ReactNode }) {
           )}
         </div>
       </div>
-      <div className="z-10 w-full max-w-md sm:max-w-lg">
-        <div className="rounded-[28px] border border-border/60 bg-card/90 p-1 shadow-2xl backdrop-blur">
+      <div className={`z-10 w-full ${wide ? 'max-w-6xl' : 'max-w-md sm:max-w-lg'}`}>
+        <div className={wide ? 'w-full' : 'rounded-[28px] border border-border/60 bg-card/90 p-1 shadow-2xl backdrop-blur'}>
           {children}
         </div>
       </div>

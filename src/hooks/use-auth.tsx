@@ -59,6 +59,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             const userData = userDoc.exists() ? userDoc.data() : null;
 
+            // Development-only test override for the currently signed-in account.
+            if (process.env.NODE_ENV !== 'production' && userData?.devForceUnverified === true) {
+              setVerificationStatus('unverified');
+              if (!pathname.startsWith('/verification')) router.push('/verification');
+              return;
+            }
+
             // Admin and sadmin roles should always bypass verification
             if (userData && (userData.role === 'admin' || userData.role === 'sadmin')) {
               setVerificationStatus('verified');

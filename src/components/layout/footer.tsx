@@ -102,10 +102,7 @@ export function Footer() {
         return null;
     }
 
-    const resolveAppLink = (link?: string) => {
-        const trimmedLink = String(link || '').trim();
-        return trimmedLink && trimmedLink !== '#' ? trimmedLink : '/install-app';
-    };
+    const hideOnPaths = ['/login', '/signup'];
 
     return (
         <footer className="bg-card/50 border-t border-border/50">
@@ -118,7 +115,7 @@ export function Footer() {
                                 <Image src={settings.logoUrl} alt="Logo" width={120} height={40} objectFit="contain" />
                             </div>
                         )}
-                        <p className="text-muted-foreground">{settings.brandDescription}</p>
+                        {/* Brand description removed per request */}
                     </div>
 
                     {/* Link Sections */}
@@ -140,29 +137,7 @@ export function Footer() {
                     </div>
 
                     {/* Download Section */}
-                    {(settings.downloadAppTitle || settings.googlePlayImageUrl || settings.appStoreImageUrl) && !pathname?.startsWith('/dashboard') && (
-                        <div className="lg:col-span-3 text-center md:text-left">
-                            {settings.downloadAppTitle && <h4 className="font-headline font-semibold mb-4">{settings.downloadAppTitle}</h4>}
-                            {settings.downloadAppSubtitle && <p className="text-muted-foreground mb-4">{settings.downloadAppSubtitle}</p>}
-                            <div className="flex flex-col items-center md:items-start gap-4">
-                                {(!settings.googlePlayImageUrl || settings.googlePlayImageUrl.trim() === '') && (!settings.appStoreImageUrl || settings.appStoreImageUrl.trim() === '') && (
-                                    <Link href="/install-app" className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
-                                        Get Finva
-                                    </Link>
-                                )}
-                                {settings.googlePlayImageUrl && settings.googlePlayImageUrl.trim() !== '' && (
-                                    <Link href={resolveAppLink(settings.googlePlayLink)} target="_blank" rel="noopener noreferrer">
-                                        <Image src={settings.googlePlayImageUrl} alt="Get it on Google Play" width={135} height={40} />
-                                    </Link>
-                                )}
-                                {settings.appStoreImageUrl && settings.appStoreImageUrl.trim() !== '' && (
-                                    <Link href={resolveAppLink(settings.appStoreLink)} target="_blank" rel="noopener noreferrer">
-                                        <Image src={settings.appStoreImageUrl} alt="Download on the App Store" width={135} height={40} />
-                                    </Link>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                    {/* Download / Install app section removed per request */}
                 </div>
                 <div className="mt-12 pt-8 border-t border-border/50 text-center text-muted-foreground">
                     <p>{settings.copyrightText ? settings.copyrightText.replace('{year}', new Date().getFullYear().toString()) : `© ${new Date().getFullYear()} All Rights Reserved.`}</p>

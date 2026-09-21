@@ -277,7 +277,7 @@ function SignUpPageContent() {
   return (
     <AuthLayout>
       <div className="w-full max-w-[380px] mx-auto px-4 sm:max-w-[560px]">
-        <Card className="rounded-[20px] border-0 bg-transparent shadow-none">
+        <Card className="rounded-[20px] border-0 bg-transparent shadow-none max-h-[88vh] overflow-hidden">
           {isClient ? <SignUpForm /> : <div className="h-[600px] animate-pulse rounded-[20px] bg-muted"></div>}
         </Card>
       </div>
@@ -482,7 +482,7 @@ function SignUpForm() {
         <CardTitle className="font-headline text-lg sm:text-2xl">{title}</CardTitle>
         <CardDescription className="text-xs sm:text-sm">{subtitle}</CardDescription>
       </CardHeader>
-      <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
+      <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6 overflow-y-auto max-h-[65vh]">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -579,13 +579,15 @@ function SignUpForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-center px-4 pb-5 text-center text-sm">
-        <p>
-          Have an account?{" "}
+      <CardFooter className="flex items-center justify-between px-4 pb-5 text-sm">
+        <div>
           <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
-            Sign in
+            Already have an account? Sign in
           </Link>
-        </p>
+        </div>
+        <div>
+          {/* Download App button intentionally removed per user request */}
+        </div>
       </CardFooter>
     </>
   );

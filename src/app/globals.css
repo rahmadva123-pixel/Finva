@@ -8,17 +8,17 @@
   :root {
     /* Trading palette (light) */
     --background: #F8FAFC; /* Light Background */
-    --foreground: #0F172A; /* Dark Navy for text */
+    --foreground: #1F2937; /* Dark gray for primary text in light mode */
     --card: #FFFFFF; /* White cards */
-    --card-foreground: #0F172A;
+    --card-foreground: var(--foreground);
     --popover: #FFFFFF;
-    --popover-foreground: #0F172A;
+    --popover-foreground: var(--foreground);
     --primary: #2563EB; /* Primary Blue */
     --primary-foreground: #FFFFFF;
     --secondary: #38BDF8; /* Light Blue */
-    --secondary-foreground: #0F172A;
+    --secondary-foreground: var(--foreground);
     --muted: #F1F5F9;
-    --muted-foreground: #94A3B8;
+    --muted-foreground: #4B5563;
     --accent: #2563EB;
     --accent-foreground: #FFFFFF;
     --destructive: #DC2626;
@@ -33,14 +33,20 @@
     --chart-3: #16A34A;
     --chart-4: #F59E0B;
     --chart-5: #DC2626;
-    --sidebar-background: #0F172A;
-    --sidebar-foreground: #FFFFFF;
+    --sidebar-background: #FFFFFF;
+    --sidebar-foreground: var(--foreground);
     --sidebar-primary: #2563EB;
     --sidebar-primary-foreground: #FFFFFF;
     --sidebar-accent: #38BDF8;
-    --sidebar-accent-foreground: #0F172A;
-    --sidebar-border: rgba(255,255,255,0.04);
+    --sidebar-accent-foreground: var(--foreground);
+    --sidebar-border: rgba(0,0,0,0.06);
     --radius: 0.5rem;
+    /* Top and bottom bars (light mode intentionally dark) */
+    --topbar-background: #0f1724;
+    --topbar-foreground: #FFFFFF;
+    --bottombar-background: #0f1724;
+    --bottombar-foreground: #FFFFFF;
+    --topbar-border: rgba(255,255,255,0.04);
 
     --bg-card-image: var(--bg-card-image-url, none);
     --bg-card-overlay: var(--bg-card-overlay-color, transparent);
@@ -214,5 +220,59 @@
     .tree > ul > li::before {
         display: none;
     }
+}
+/* DEBUG: show main container bounds on mobile */
+@media (max-width: 640px) {
+  .debug-main {
+    outline: 3px solid rgba(239,68,68,0.25);
+    outline-offset: -12px;
+  }
+}
+
+/* Aggressive temporary mobile full-bleed fix: force main containers to use viewport width */
+@media (max-width: 640px) {
+  html, body, #__next {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  /* common centered containers used across the app - avoid unescaped bracketed class names */
+  .mx-auto, .max-w-xl, .max-w-lg, .max-w-md, .max-w-sm {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  /* catch any class that contains "max-w-" (safer than using bracketed selectors) */
+  [class*="max-w-"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  main > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+/* Mobile: force cards and rounded containers to use full width and reduce internal padding for edge-to-edge feel */
+@media (max-width: 640px) {
+  .bg-card, .rounded-2xl, .rounded-xl {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Reduce card inner padding slightly on small screens */
+  .bg-card > *,
+  .rounded-2xl > *,
+  .rounded-xl > * {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
 }
     

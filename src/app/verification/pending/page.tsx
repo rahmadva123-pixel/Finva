@@ -80,11 +80,11 @@ export default function VerificationPendingPage() {
                 <CardHeader className="text-center">
                     <Clock className="mx-auto h-12 w-12 text-primary mb-4" />
                     <CardTitle className="font-headline text-2xl">{content.pendingPageTitle || 'Verification Pending'}</CardTitle>
-                    <CardDescription>{content.pendingPageDescription || 'Your documents have been submitted successfully and are now under review. This may take up to 24 hours.'}</CardDescription>
+                    <CardDescription>{content.pendingPageDescription || 'Your verification is under review.'}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                      <div className="p-4 bg-muted/50 border rounded-lg text-center space-y-4">
-                        <p className="text-sm text-muted-foreground">{content.pendingPageInstructions || 'If you log out, you can log in again later to check your status. Once approved, you will automatically be taken to your dashboard.'}</p>
+                        <p className="text-sm text-muted-foreground">{content.pendingPageInstructions || 'Check back later for your status.'}</p>
                          {(content.pendingPageSupportWhatsapp || content.pendingPageSupportTelegram || content.pendingPageSupportEmail || content.pendingPageSupportPhone) && (
                             <>
                                 <h4 className="font-semibold text-sm">Need help? Contact support:</h4>

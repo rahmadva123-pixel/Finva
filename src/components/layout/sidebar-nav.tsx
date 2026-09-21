@@ -54,9 +54,8 @@ const allNavItemsConfig: Omit<NavItemConfig, 'label'>[] = [
   { key: 'markets', href: '/markets', icon: TrendingUp, dropdown: false },
   { key: 'trade', href: '/trade', icon: DollarSign, dropdown: false },
   { key: 'orders', href: '/dashboard/finance/history', icon: Repeat, dropdown: false },
-  { key: 'wallet', href: '/dashboard/finance/wallet', icon: Wallet, dropdown: false },
-  { key: 'activity', href: '/dashboard/finance/history', icon: LayoutDashboard, dropdown: false },
-  { key: 'support', href: '/dashboard/support', icon: HelpCircle, dropdown: false },
+
+
   { key: 'about', href: '/about', icon: Info, dropdown: false },
 ];
 
@@ -90,6 +89,7 @@ export function SidebarNav() {
       sidebarColor1: 'rgba(25, 25, 41, 0.5)',
       sidebarColor2: 'rgba(42, 42, 66, 0.5)',
   });
+  const [isDark, setIsDark] = useState(false);
 
   const calculateTotalEarning = useCallback(async () => {
     if (!user || !db) return;
@@ -217,14 +217,28 @@ export function SidebarNav() {
       .filter((item): item is NavItemConfig => item !== null);
   }, [navSettings]);
 
-  const sidebarStyle = {
-    background: `linear-gradient(to bottom, ${sidebarColors.sidebarColor1}, ${sidebarColors.sidebarColor2})`,
-  };
+  const sidebarStyle = React.useMemo(() => {
+    if (isDark) {
+      return {
+        background: `linear-gradient(to bottom, ${sidebarColors.sidebarColor1}, ${sidebarColors.sidebarColor2})`,
+      };
+    }
+    return { background: 'var(--sidebar-background)' };
+  }, [sidebarColors, isDark]);
 
-  return (
-    <aside className="w-full h-full flex flex-col bg-sidebar text-sidebar-foreground">
+  useEffect(() => {
+    // detect theme from html class and observe changes
+    const check = () => setIsDark(document.documentElement.classList.contains('dark'));
+    check();
+    const mo = new MutationObserver(check);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => mo.disconnect();
+  }, []);
+
+    return (
+    <aside className="w-full h-full flex flex-col bg-sidebar text-sidebar-foreground" style={sidebarStyle}>
       <div className="flex-grow flex flex-col p-4 space-y-4 pt-8 overflow-y-auto">
-        <Link href="/dashboard/profile" className="p-3 bg-black/20 rounded-lg block hover:bg-black/30 transition-colors">
+      <Link href="/dashboard/profile" className="p-3 bg-sidebar/10 rounded-lg block hover:bg-sidebar/20 transition-colors">
             <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
                     <AvatarImage src={userProfile?.photoURL || "https://placehold.co/40x40"} alt={user?.displayName || "User"} />
@@ -232,7 +246,7 @@ export function SidebarNav() {
                 </Avatar>
                 <div>
                     <p className="text-sm font-semibold">{userProfile?.firstName || user?.email?.split('@')[0] || 'User'}</p>
-                    <p className="text-xs text-white/70">Userid: {user?.uid.slice(0,8).toUpperCase() || 'VWLWUNIC'}</p>
+            <p className="text-xs text-sidebar-foreground opacity-70">Userid: {user?.uid.slice(0,8).toUpperCase() || 'VWLWUNIC'}</p>
                 </div>
             </div>
             <div className="mt-4 p-4 rounded-lg bg-sidebar/30 border border-sidebar-border text-sidebar-foreground">
@@ -240,24 +254,24 @@ export function SidebarNav() {
                 <div className="space-y-1 text-sm">
                     <div className="flex justify-between items-center gap-2">
                         <span>{formatCurrency(balance)}</span>
-                        <span className="text-white/60">Main Wallet</span>
+              <span className="text-sidebar-foreground opacity-60">Main Wallet</span>
                     </div>
                      <div className="flex justify-between items-center gap-2">
                         <span>{formatCurrency(totalEarning)}</span>
-                        <span className="text-white/60">Total Earning</span>
+              <span className="text-sidebar-foreground opacity-60">Total Earning</span>
                     </div>
                 </div>
             </div>
         </Link>
 
         <nav className="flex flex-col gap-1">
-          <Link
+            <Link
               href={'/dashboard'}
               className={cn(
-                  'flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-white/80 transition-all hover:text-white hover:bg-black/20',
-                  pathname === '/dashboard' && 'bg-primary text-primary-foreground hover:text-primary-foreground'
+                'flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-sidebar-foreground hover:bg-sidebar/20',
+                pathname === '/dashboard' && 'bg-primary text-primary-foreground hover:text-primary-foreground'
               )}
-          >
+            >
               <div className="flex items-center gap-3">
                   <LayoutDashboard className="h-4 w-4" />
                   <span>Dashboard</span>
@@ -272,9 +286,9 @@ export function SidebarNav() {
           {visibleNavItems.map((item) => (
             item.dropdown ? (
             <AccordionItem value={item.label} key={item.key} className="border-none">
-                <AccordionTrigger className={cn('flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-white/80 transition-all hover:text-white hover:no-underline hover:bg-black/20',
-                 pathname.startsWith(item.href) && 'bg-primary text-primary-foreground hover:text-primary-foreground'
-                )}>
+            <AccordionTrigger className={cn('flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-sidebar-foreground hover:no-underline hover:bg-sidebar/20',
+             pathname.startsWith(item.href) && 'bg-primary text-primary-foreground hover:text-primary-foreground'
+            )}>
                      <div className="flex items-center gap-3">
                         <item.icon className="h-4 w-4" />
                         <span>{item.label}</span>
@@ -285,10 +299,10 @@ export function SidebarNav() {
                          <Link
                             href={subItem.href}
                             key={subItem.href}
-                            className={cn(
-                                'block rounded-lg py-2 px-3 text-white/70 hover:text-white',
-                                pathname === subItem.href && 'bg-primary text-primary-foreground font-medium shadow-sm'
-                            )}
+                  className={cn(
+                    'block rounded-lg py-2 px-3 text-sidebar-foreground opacity-70 hover:text-sidebar-foreground',
+                    pathname === subItem.href && 'bg-primary text-primary-foreground font-medium shadow-sm'
+                  )}
                             >
                             {subItem.label}
                         </Link>
@@ -297,56 +311,38 @@ export function SidebarNav() {
             </AccordionItem>
              ) : (
                 <Link
-                    key={item.key}
-                    href={item.href}
-                    className={cn(
-                        'flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-white/80 transition-all hover:text-white hover:bg-black/20',
-                        pathname.startsWith(item.href) && 'bg-primary text-primary-foreground hover:text-primary-foreground'
-                    )}
-                    >
-                    <div className="flex items-center gap-3">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.label}</span>
-                    </div>
+                  key={item.key}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-sidebar-foreground hover:bg-sidebar/20',
+                    pathname.startsWith(item.href) && 'bg-primary text-primary-foreground hover:text-primary-foreground'
+                  )}
+                  >
+                  <div className="flex items-center gap-3">
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </div>
                 </Link>
              )
           ))}
           </Accordion>
           )}
           
-          <Link
+            <Link
               href={'/dashboard/notifications'}
               className={cn(
-                  'flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-white/80 transition-all hover:text-white hover:bg-black/20',
-                  pathname === '/dashboard/notifications' && 'bg-primary text-primary-foreground hover:text-primary-foreground'
+                'flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-sidebar-foreground hover:bg-sidebar/20',
+                pathname === '/dashboard/notifications' && 'bg-primary text-primary-foreground hover:text-primary-foreground'
               )}
-          >
+            >
               <div className="flex items-center gap-3">
-                  <Bell className="h-4 w-4" />
-                  <span>Notifications</span>
+                <Bell className="h-4 w-4" />
+                <span>Notifications</span>
               </div>
-          </Link>
+            </Link>
         </nav>
       </div>
-      <div className="p-4 border-t border-white/10 space-y-1">
-        <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-white/80 hover:bg-black/20 hover:text-white" asChild>
-            <Link href="/dashboard/support">
-                <HelpCircle className="h-4 w-4" />
-                <span>Support</span>
-            </Link>
-        </Button>
-        <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-white/80 hover:bg-black/20 hover:text-white" onClick={handleLogout}>
-            <LogOut className="h-4 w-4" />
-            <span>Sign out</span>
-        </Button>
-      </div>
       <div className="p-4 border-t border-sidebar-border space-y-1">
-        <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-sidebar-foreground hover:bg-sidebar/20 hover:text-sidebar-foreground" asChild>
-            <Link href="/dashboard/support">
-                <HelpCircle className="h-4 w-4" />
-                <span>Support</span>
-            </Link>
-        </Button>
         <Button variant="ghost" className="w-full justify-start gap-3 px-3 text-sidebar-foreground hover:bg-sidebar/20 hover:text-sidebar-foreground" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />
             <span>Sign out</span>

@@ -11,6 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, getDoc, doc } from 'firebase/firestore';
 import { format } from 'date-fns';
+import dynamic from 'next/dynamic';
+
+const ReferralTree = dynamic(() => import('@/components/referral-tree/ReferralTree'), { ssr: false });
 
 interface TeamUser {
     id: string;
@@ -391,6 +394,14 @@ export default function TeamPage() {
                                 </Table>
                             </div>
                         )}
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Referral Tree</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {user ? <ReferralTree rootId={user.uid} maxDepth={4} /> : <div className="text-sm text-muted-foreground">Sign in to view tree.</div>}
                     </CardContent>
                 </Card>
             </div>

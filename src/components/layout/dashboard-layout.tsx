@@ -51,7 +51,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         {settings?.dashboardBackgroundUrl && (
            <div className="absolute inset-0 z-0" style={{ backgroundColor: settings.dashboardOverlayColor || 'transparent' }}></div>
         )}
-        <div className="relative z-10 flex flex-col h-screen">
+        <div className="relative z-10 flex-1 flex flex-col min-h-0 pt-16">
             <Header onMobileNavToggle={() => setMobileNavOpen(true)} />
             <div className="flex flex-1 overflow-hidden">
                 {!isMobile && (
@@ -60,7 +60,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                   </div>
                 )}
                 <main className="flex-1 overflow-y-auto bg-background/80 pb-28 backdrop-blur-sm sm:pb-0">
-                  <div className="mx-auto w-full max-w-6xl p-3 sm:p-4 md:p-6 lg:p-8">
+                  <div className="mx-auto w-full max-w-full sm:max-w-6xl p-3 sm:p-4 md:p-6 lg:p-8">
                       {children}
                   </div>
                 </main>

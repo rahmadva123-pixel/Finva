@@ -143,18 +143,49 @@ export default function FinanceHistoryPage() {
       switch (transaction.type) {
           case 'deposit':
           case 'receive':
-            return { icon: <ArrowDown className="h-5 w-5 text-green-500" />, color: 'text-green-500' };
+            return { icon: <ArrowDown className="h-5 w-5 text-green-600" />, color: 'text-green-600', bg: 'bg-green-50' };
           case 'withdraw':
           case 'send':
-            return { icon: <ArrowUp className="h-5 w-5 text-red-500" />, color: 'text-red-500' };
+            return { icon: <ArrowUp className="h-5 w-5 text-red-600" />, color: 'text-red-600', bg: 'bg-red-50' };
           case 'bonus':
-            return { icon: <Gift className="h-5 w-5 text-yellow-500" />, color: 'text-yellow-500' };
+            return { icon: <Gift className="h-5 w-5 text-yellow-600" />, color: 'text-yellow-600', bg: 'bg-yellow-50' };
           case 'investment':
-            return { icon: <CircleDollarSign className="h-5 w-5 text-blue-500" />, color: 'text-blue-500' };
+            return { icon: <CircleDollarSign className="h-5 w-5 text-sky-600" />, color: 'text-sky-600', bg: 'bg-sky-50' };
           default:
-            return { icon: <TrendingUp className="h-5 w-5" />, color: 'text-muted-foreground' };
+            return { icon: <TrendingUp className="h-5 w-5" />, color: 'text-muted-foreground', bg: 'bg-muted/10' };
       }
   };
+
+  const [postBalances, setPostBalances] = useState<Record<string, number>>({});
+  const [balancesEstimated, setBalancesEstimated] = useState(false);
+
+  useEffect(() => {
+    if (!transactions || transactions.length === 0) { setPostBalances({}); return; }
+    const getTimestamp = (d: any) => (d?.seconds ? d.seconds * 1000 : (typeof d === 'number' ? d : (d?.toDate ? d.toDate().getTime() : 0)));
+    const signedAmount = (tx: Transaction) => {
+      if (tx.status === 'pending') return 0;
+      const props = getTransactionProps(tx);
+      const sign = (tx.type === 'withdraw' || tx.type === 'send') ? -1 : 1;
+      return sign * Number(tx.amount || 0);
+    };
+
+    const totalSigned = transactions.reduce((s, t) => s + signedAmount(t), 0);
+    // try to read current balance from a user doc when available; fallback to 0 (estimated)
+    // We don't have userData here; mark estimated if we can't access a reliable balance
+    const currentBalance = 0;
+    const estimated = true;
+    setBalancesEstimated(estimated);
+    const startingBalance = Math.round((currentBalance - totalSigned) * 100) / 100;
+
+    const itemsAsc = [...transactions].sort((a,b) => getTimestamp(a.date) - getTimestamp(b.date));
+    const balancesById: Record<string, number> = {};
+    let running = startingBalance;
+    itemsAsc.forEach(it => {
+      running = Math.round((running + signedAmount(it)) * 100) / 100;
+      balancesById[it.id] = running;
+    });
+    setPostBalances(balancesById);
+  }, [transactions]);
 
   const getStatusBadge = (status: Transaction['status']) => {
     switch (status) {
@@ -176,10 +207,10 @@ export default function FinanceHistoryPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-full px-4 sm:px-6 mx-auto">
         <div>
-            <h1 className="text-3xl font-bold font-headline tracking-tight">Transaction History</h1>
-            <p className="text-muted-foreground">A complete log of all your deposits and withdrawals.</p>
+          <h1 className="text-2xl font-semibold font-headline tracking-tight">Transactions</h1>
+          <p className="text-sm text-muted-foreground">A concise list of your deposits, withdrawals and transfers.</p>
         </div>
         <Card>
             <CardHeader>
@@ -188,38 +219,51 @@ export default function FinanceHistoryPage() {
                    Your financial transaction history is listed below.
                 </CardDescription>
             </CardHeader>
-            <CardContent>
-                {loading ? (
-                    <div className="flex justify-center items-center p-8">
-                        <Loader2 className="h-8 w-8 animate-spin" />
-                    </div>
-                ) : transactions.length === 0 ? (
-                    <p className="text-center text-muted-foreground p-8">Your transaction history is empty.</p>
-                ) : (
+            <CardContent className="p-2 sm:p-4">
+              {loading ? (
+                <div className="flex justify-center items-center p-8">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="flex flex-col items-center justify-center p-8">
+                  <div className="h-14 w-14 rounded-full bg-muted/30 flex items-center justify-center mb-4">
+                  <Info className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-medium text-card-foreground mb-1">No transactions yet</p>
+                  <p className="text-xs text-muted-foreground">Your financial activity will appear here once you make a deposit or withdrawal.</p>
+                </div>
+              ) : (
                   <div className="space-y-3">
                     {transactions.map(tx => {
-                      const { icon, color } = getTransactionProps(tx);
+                      const { icon, color, bg } = getTransactionProps(tx);
                       const amountSign = (tx.type === 'withdraw' || tx.type === 'send') ? '-' : '+';
+                      const post = postBalances[tx.id];
                       return (
-                        <TradingCard key={tx.id} className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-full bg-muted/20">
-                              {icon}
-                            </div>
-                            <div>
-                              <p className="font-semibold text-card-foreground">{tx.title}</p>
-                              <p className="text-sm text-muted-foreground">{format(new Date(tx.date.seconds * 1000), "PPpp")}</p>
-                            </div>
+                        <div key={tx.id} className="p-2 sm:p-3 bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow w-full">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2 min-w-0">
+                                  <div className={`${bg} flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-xl`}>
+                                    {icon}
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-sm sm:text-base font-semibold text-card-foreground">{tx.title}</p>
+                                    <p className="text-[11px] sm:text-xs text-muted-foreground">{format(new Date((tx.date?.seconds || 0) * 1000), "PPpp")}</p>
+                                  </div>
+                                </div>
+
+                                <div className="text-right flex flex-col items-end w-28 sm:w-auto gap-1 flex-shrink-0">
+                                  <div className="flex items-baseline gap-2">
+                                    <p className={`font-semibold text-sm sm:text-lg ${color}`}>{amountSign}{formatCurrency(tx.amount)}</p>
+                                    {typeof post === 'number' && <p className="text-[11px] sm:text-xs text-muted-foreground">Bal {formatCurrency(post)}{balancesEstimated ? ' (est.)' : ''}</p>}
+                                  </div>
+                                  <div>
+                                    {tx.status === 'pending' && <StatusBadge variant="warning">Pending</StatusBadge>}
+                                    {tx.status === 'completed' && <StatusBadge variant="success">Completed</StatusBadge>}
+                                    {tx.status === 'rejected' && <StatusBadge variant="danger">Rejected</StatusBadge>}
+                                  </div>
+                                </div>
                           </div>
-                          <div className="text-right flex flex-col items-end gap-1">
-                            <p className={`font-semibold text-lg ${color}`}>{amountSign}{formatCurrency(tx.amount)}</p>
-                            <div>
-                              {tx.status === 'pending' && <StatusBadge variant="warning">Pending</StatusBadge>}
-                              {tx.status === 'completed' && <StatusBadge variant="success">Completed</StatusBadge>}
-                              {tx.status === 'rejected' && <StatusBadge variant="danger">Rejected</StatusBadge>}
-                            </div>
-                          </div>
-                        </TradingCard>
+                        </div>
                       )
                     })}
                   </div>

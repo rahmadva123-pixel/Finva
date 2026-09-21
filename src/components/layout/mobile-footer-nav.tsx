@@ -18,10 +18,10 @@ interface MobileFooterMenuItem {
 }
 
 const defaultNavItems: MobileFooterMenuItem[] = [
-    { label: 'Home', icon: 'LayoutDashboard', href: '/dashboard' },
-    { label: 'Deposit', icon: 'ArrowDownCircle', href: '/dashboard/finance/deposit' },
+    { label: 'Home', icon: 'Home', href: '/dashboard' },
     { label: 'Markets', icon: 'TrendingUp', href: '/markets' },
-    { label: 'Referral', icon: 'Users', href: '/dashboard/referral' },
+    { label: 'Trade', icon: 'ArrowsUpDown', href: '/trade' },
+    { label: 'Referrals', icon: 'Users', href: '/dashboard/referral' },
 ];
 
 export function MobileFooterNav() {
@@ -52,35 +52,19 @@ export function MobileFooterNav() {
         return null;
     }
 
-    let navItems = navConfig?.items?.length ? navConfig.items.slice() : defaultNavItems.slice();
-
-    // Use configured nav items or defaults (VIP removed for now).
-    // No automatic normalization to VIP is applied.
-
-    // Remove duplicate hrefs to avoid React key collisions
-    const uniqueNavItems = navItems.filter((v, i, a) => a.findIndex(t => t.href === v.href) === i);
-    const middleIndex = Math.floor(uniqueNavItems.length / 2);
+    // We force the five-button layout: Home, Markets, Trade (center), Referrals, Wallet
+    const uniqueNavItems = defaultNavItems.slice(0,5);
+    const middleIndex = 2; // Trade is center
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-[72px] items-center justify-around border-t border-border/50 bg-card/95 px-2 pb-2 pt-1 shadow-2xl backdrop-blur sm:hidden">
-            {uniqueNavItems.map((item, index) => {
+        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t sm:hidden" style={{ background: 'var(--bottombar-background)', color: 'var(--bottombar-foreground)', borderColor: 'var(--topbar-border)' }}>
+            <div className="mx-auto w-full max-w-full sm:max-w-6xl px-4 flex h-[64px] items-center justify-between">
+            {uniqueNavItems.map((item) => {
                 const Icon = (LucideIcons as any)[item.icon] || LucideIcons.HelpCircle;
                 const isActive = pathname === item.href;
-
-                if (index === middleIndex) {
-                    return (
-                        <div key={item.href} className="-mt-8">
-                            <Link href={item.href} className="relative flex h-16 w-16 flex-col items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30">
-                                <Icon className="h-7 w-7" />
-                                <span className="sr-only">{item.label}</span>
-                            </Link>
-                        </div>
-                    );
-                }
-
                 return (
                     <Link href={item.href} key={item.href} className={cn(
-                        "flex flex-col items-center text-muted-foreground flex-1 min-w-0 pt-1 pb-1 transition-colors",
+                        "flex flex-col items-center justify-center gap-1 text-muted-foreground flex-1 min-w-0 py-2 transition-colors",
                         isActive && "text-primary"
                     )}>
                         <Icon className="h-6 w-6" />
@@ -88,6 +72,7 @@ export function MobileFooterNav() {
                     </Link>
                 );
             })}
+            </div>
         </nav>
     );
 }

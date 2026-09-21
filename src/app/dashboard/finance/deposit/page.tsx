@@ -226,20 +226,41 @@ export default function DepositPage() {
   const handleSelectMethod = (method: DepositMethod) => {
     setSelectedMethod(method);
     if (method.type === 'crypto' && method.networks && method.networks.length > 1) {
-        setStep(3);
+      setSelectedNetwork(null);
     } else if (method.type === 'crypto' && method.networks && method.networks.length === 1) {
         setSelectedNetwork(method.networks[0]);
-        setStep(4);
     } else {
         setSelectedNetwork(null);
-        setStep(4);
     }
+    setStep(1);
   };
 
   const handleSelectNetwork = (network: Network) => {
       setSelectedNetwork(network);
-      setStep(4);
   }
+
+    const handleSinglePageSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      const depositValue = parseFloat(amount);
+      if (isNaN(depositValue) || depositValue <= 0) {
+        toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a valid amount.' });
+        return;
+      }
+      const availableMethod = methods.find(method => depositValue >= method.minAmount && (method.unlimited || depositValue <= method.maxAmount));
+      if (!availableMethod) {
+        toast({ variant: 'destructive', title: 'No Method Available', description: 'No deposit method is available for this amount.' });
+        return;
+      }
+      if (!selectedMethod || selectedMethod.id !== availableMethod.id) {
+        toast({ variant: 'destructive', title: 'Select a payment method' });
+        return;
+      }
+      if (selectedMethod.type === 'crypto' && selectedMethod.networks?.length && !selectedNetwork) {
+        toast({ variant: 'destructive', title: 'Select a network' });
+        return;
+      }
+      handleInitialSubmit(e);
+    };
   
   const handleInitialSubmit = (e: React.FormEvent) => {
       e.preventDefault();
@@ -334,20 +355,66 @@ export default function DepositPage() {
   const amountToSend = selectedMethod ? depositAmount * selectedMethod.rate : 0;
 
   const renderStep = () => {
+    const finalAddress = randomizedDetail?.address || selectedNetwork?.address;
+    const finalBankDetails = randomizedDetail?.bankDetails || selectedMethod?.bankDetails;
+
+    return (
+      <Card className="overflow-hidden rounded-3xl border-border/80 shadow-sm">
+        <CardHeader className="border-b bg-[var(--topbar-background)] px-5 py-6 text-white sm:px-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary">Wallet</p>
+          <CardTitle className="mt-2 text-2xl tracking-tight">Deposit funds</CardTitle>
+        </CardHeader>
+        <CardContent className="p-5 sm:p-8">
+          <form onSubmit={handleSinglePageSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="deposit-amount" className="text-sm font-semibold">Amount</Label>
+              <div className="relative">
+                <Input id="deposit-amount" type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" className="h-14 rounded-xl border-border pr-16 text-xl font-semibold shadow-none focus-visible:ring-primary" required />
+                <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-muted-foreground">{currency.symbol}</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 border-t pt-5">
+              <div><Label className="text-sm font-semibold">Payment method</Label></div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {methods.map(method => {
+                  const available = !amount || (parseFloat(amount) >= method.minAmount && (method.unlimited || parseFloat(amount) <= method.maxAmount));
+                  return <button key={method.id} type="button" disabled={!available} onClick={() => handleSelectMethod(method)} className={cn('flex items-center justify-between gap-3 rounded-2xl border p-4 text-left transition-all', selectedMethod?.id === method.id ? 'border-primary bg-primary/10 ring-2 ring-primary/20' : available ? 'border-border/80 hover:border-primary hover:bg-primary/5' : 'cursor-not-allowed border-border/50 opacity-40')}>
+                    <span className="flex min-w-0 items-center gap-3">{method.iconUrl ? <Image src={method.iconUrl} alt={method.name} width={40} height={40} className="rounded-xl" /> : <span className="h-10 w-10 shrink-0 rounded-xl bg-[var(--topbar-background)]" />}<span><span className="block text-sm font-semibold">{method.name}</span><span className="mt-1 block text-xs text-muted-foreground">{formatCurrency(method.minAmount, currency.symbol)} min</span></span></span>
+                    {selectedMethod?.id === method.id && <CheckCircle className="h-5 w-5 text-primary" />}
+                  </button>;
+                })}
+              </div>
+            </div>
+
+            {selectedMethod?.type === 'crypto' && (selectedMethod.networks || []).length > 0 && <div className="space-y-3 border-t pt-5"><Label className="text-sm font-semibold">Network</Label><div className="grid gap-2 sm:grid-cols-2">{selectedMethod.networks?.map(network => <button key={network.id} type="button" onClick={() => handleSelectNetwork(network)} className={cn('rounded-xl border p-3 text-left text-sm transition-colors', selectedNetwork?.id === network.id ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-primary')}>{network.name}</button>)}</div></div>}
+
+            {selectedMethod && (selectedMethod.type === 'crypto' ? selectedNetwork : true) && <div className="space-y-5 border-t pt-5">
+              {selectedMethod.type === 'crypto' && finalAddress && <div className="rounded-2xl bg-muted/40 p-4 text-center"><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Send to</p><p className="mt-2 break-all font-mono text-sm">{finalAddress}</p><Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => copyToClipboard(finalAddress)}><Copy className="mr-2 h-4 w-4" />Copy address</Button></div>}
+              {selectedMethod.type === 'bank' && finalBankDetails && <div className="space-y-2 rounded-2xl bg-muted/40 p-4">{finalBankDetails.map((detail: BankDetail) => <div key={detail.id} className="flex items-center justify-between gap-3"><div><p className="text-xs text-muted-foreground">{detail.label}</p><p className="font-mono text-sm font-semibold">{detail.value}</p></div><Button type="button" variant="ghost" size="icon" onClick={() => copyToClipboard(detail.value)}><Copy className="h-4 w-4" /></Button></div>)}</div>}
+              <div className="grid gap-3 rounded-2xl border p-4 text-sm sm:grid-cols-3"><div><p className="text-xs text-muted-foreground">Amount</p><p className="font-semibold">{formatCurrency(depositAmount, currency.symbol)}</p></div><div><p className="text-xs text-muted-foreground">Fee</p><p className="font-semibold">{formatCurrency(fee, currency.symbol)}</p></div><div><p className="text-xs text-muted-foreground">You receive</p><p className="font-semibold text-primary">{formatCurrency(amountToReceive, currency.symbol)}</p></div></div>
+              {(selectedMethod.fields || []).map(field => { const fieldName = field.label.replace(/\s+/g, '_').toLowerCase(); return <div key={field.id} className="space-y-2"><Label htmlFor={fieldName}>{field.label}{field.required && <span className="text-destructive">*</span>}</Label>{field.type === 'image' ? <div className="flex items-center gap-3"><Input id={fieldName} type="file" accept="image/*" onChange={e => e.target.files && handleImageUpload(fieldName, e.target.files[0])} className="hidden" /><Label htmlFor={fieldName} className="flex-1 cursor-pointer"><div className="flex min-h-20 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-3 text-sm text-primary">{uploadingField === fieldName ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}{formValues[fieldName] ? 'Image selected' : 'Upload image'}</div></Label>{formValues[fieldName] && <Image src={formValues[fieldName]} alt="preview" width={56} height={56} className="rounded-xl object-cover" />}</div> : field.type === 'textarea' ? <Textarea id={fieldName} value={formValues[fieldName] || ''} onChange={e => handleFormValueChange(fieldName, e.target.value)} placeholder={`Enter ${field.label}`} required={field.required} /> : <Input id={fieldName} type={field.type === 'number' ? 'number' : 'text'} value={formValues[fieldName] || ''} onChange={e => handleFormValueChange(fieldName, e.target.value)} placeholder={`Enter ${field.label}`} required={field.required} />}</div>; })}
+            </div>}
+
+            <Button type="submit" className="h-12 w-full rounded-xl bg-[var(--topbar-background)] text-white hover:bg-primary dark:bg-secondary dark:text-secondary-foreground" disabled={submitting || !!uploadingField}>{submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Review deposit</Button>
+          </form>
+        </CardContent>
+      </Card>
+    );
+
+    /* Legacy multi-step renderer retained below for reference.
     switch (step) {
       case 1:
         return (
           <TradingCard>
             <CardHeader>
               <CardTitle>Deposit Funds</CardTitle>
-              <CardDescription>Enter the amount you wish to add to your wallet.</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleAmountSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="amount">Amount to Receive ({currency.symbol})</Label>
                    <Input id="amount" type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" required />
-                   <p className="text-xs text-muted-foreground">1 USD = {currency.usdtRate} {currency.symbol}</p>
                 </div>
                  {methods.length > 0 && (
                     <div className="space-y-3 pt-4">
@@ -376,7 +443,7 @@ export default function DepositPage() {
                  <Button variant="ghost" size="icon" onClick={() => setStep(1)}><ArrowLeft /></Button>
                  <div>
                     <CardTitle>Select Payment Method</CardTitle>
-                    <CardDescription>You want to deposit {formatCurrency(depositAmount, currency.symbol)}. Choose a method.</CardDescription>
+                    <CardDescription>{formatCurrency(depositAmount, currency.symbol)}</CardDescription>
                  </div>
                </div>
             </CardHeader>
@@ -422,7 +489,7 @@ export default function DepositPage() {
                         <Button variant="ghost" size="icon" onClick={() => setStep(2)}><ArrowLeft /></Button>
                         <div>
                         <CardTitle>Choose Network</CardTitle>
-                        <CardDescription>Select a network for your {selectedMethod.name} deposit.</CardDescription>
+                        <CardDescription>{selectedMethod.name}</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
@@ -453,7 +520,7 @@ export default function DepositPage() {
                            {selectedMethod.iconUrl && <Image src={selectedMethod.iconUrl} alt={selectedMethod.name} width={24} height={24} />}
                            <CardTitle className="text-xl">{selectedMethod.name} {selectedNetwork ? `(${selectedNetwork.name})` : ''}</CardTitle>
                         </div>
-                        <CardDescription>Final step to complete your deposit.</CardDescription>
+                        <CardDescription>{selectedMethod.name}</CardDescription>
                      </div>
                    </div>
                 </CardHeader>
@@ -560,6 +627,7 @@ export default function DepositPage() {
       default:
         return null;
     }
+    */
   };
 
   if (loading || isIdentityVerified === null) {
