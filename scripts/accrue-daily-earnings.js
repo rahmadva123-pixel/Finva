@@ -41,6 +41,11 @@ async function main() {
   const settings = settingsSnap.data();
   const payoutMethod = settings.payoutMethod || 'pending';
   const minBalance = Number(settings.minBalance || 0);
+  const normalizeRate = (value) => {
+    const rate = Number(value || 0);
+    // Accept both decimal rates (0.02) and admin-entered percentages (2).
+    return Math.abs(rate) > 1 ? rate / 100 : rate;
+  };
   const defaultTiers = [
     { minReferrals: 0, rate: 0.015 },
     { minReferrals: 1, rate: 0.02 },
@@ -48,7 +53,7 @@ async function main() {
   ];
   // Optional override: [{ minReferrals: 0, rate: 0.015 }, ...]
   const configuredTiers = Array.isArray(settings.tiers)
-    ? settings.tiers.map(t => ({ minReferrals: Number(t.minReferrals || 0), rate: Number(t.rate || 0) }))
+    ? settings.tiers.map(t => ({ minReferrals: Number(t.minReferrals || 0), rate: normalizeRate(t.rate) }))
     : null;
   const tiers = configuredTiers?.length ? configuredTiers : defaultTiers;
   const batchSize = 500;
