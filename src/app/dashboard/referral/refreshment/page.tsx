@@ -90,9 +90,13 @@ export default function RefreshmentBonusPage() {
                       {!b.claimed && b.status === 'claimable' ? (
                         <div className="mt-2">
                           {now < getAvailableAt(b) ? (
-                            <div className="rounded bg-muted px-3 py-1 text-xs text-muted-foreground">
-                              Claim available in {formatCountdown(getAvailableAt(b) - now)}
-                            </div>
+                            <button
+                              type="button"
+                              disabled
+                              className="cursor-not-allowed rounded bg-muted px-3 py-1 text-xs text-muted-foreground"
+                            >
+                              Claim in {formatCountdown(getAvailableAt(b) - now)}
+                            </button>
                           ) : <button
                             className="px-3 py-1 rounded bg-primary text-white text-sm"
                             onClick={async () => {

@@ -528,7 +528,7 @@ function SignUpForm() {
             <div className="space-y-2">
             <Label htmlFor="password" className="text-slate-200">Create password</Label>
             <div className="relative">
-              <Input id="password" name="password" type={showPassword ? "text" : "password"} inputMode="text" autoComplete="new-password" className="min-h-[48px] cursor-text rounded-xl border-white/10 bg-white/[0.06] pr-12 text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
+              <Input id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" enterKeyHint="next" autoCapitalize="none" autoCorrect="off" spellCheck={false} onFocus={(event) => event.currentTarget.scrollIntoView({ block: "center", behavior: "smooth" })} className="min-h-[48px] cursor-text rounded-xl border-white/10 bg-white/[0.06] pr-12 text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
               <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"}>
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
@@ -537,7 +537,7 @@ function SignUpForm() {
             <div className="space-y-2">
             <Label htmlFor="confirmPassword" className="text-slate-200">Confirm password</Label>
             <div className="relative">
-              <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} inputMode="text" autoComplete="new-password" className="min-h-[48px] cursor-text rounded-xl border-white/10 bg-white/[0.06] pr-12 text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
+              <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" enterKeyHint="done" autoCapitalize="none" autoCorrect="off" spellCheck={false} onFocus={(event) => event.currentTarget.scrollIntoView({ block: "center", behavior: "smooth" })} className="min-h-[48px] cursor-text rounded-xl border-white/10 bg-white/[0.06] pr-12 text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
               <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowConfirmPassword((value) => !value)} aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}>
                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>

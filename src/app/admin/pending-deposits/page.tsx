@@ -146,7 +146,7 @@ export default function AdminPendingDepositsPage() {
                     // Mark deposit completed (balance will be updated via addEarning to avoid overwrite)
                     transaction.update(depositRef, { status: 'completed', completedAt: serverTimestamp() });
 
-                    let bonusAmount = 0;
+                    let referredBonusAmount = 0;
 
                     // Apply referral bonuses only on the referred user's FIRST completed deposit
                     if (directReferrerId && referrerDoc && referrerDoc.exists()) {
@@ -170,6 +170,7 @@ export default function AdminPendingDepositsPage() {
                             const referredPct = 10; // referred user receives 10%
                             const referrerBonus = Number(((deposit.amount * referrerPct) / 100).toFixed(2));
                             const referredBonus = Number(((deposit.amount * referredPct) / 100).toFixed(2));
+                            referredBonusAmount = referredBonus;
 
                             // mark referral processed on deposit to prevent double processing
                             transaction.update(depositRef, { referralProcessed: true });
@@ -225,15 +226,6 @@ export default function AdminPendingDepositsPage() {
 
                             // Credit referred user
                             if (referredBonus > 0) {
-                                const userRef2 = doc(db!, "users", deposit.userId);
-                                const userDataCurrent = userDoc.data();
-                                const userBalance = Number(userDataCurrent.balance || 0);
-                                const userTotalEarning = Number(userDataCurrent.totalEarning || 0);
-                                transaction.update(userRef2, {
-                                    balance: Number((userBalance + referredBonus).toFixed(2)),
-                                    totalEarning: Number((userTotalEarning + referredBonus).toFixed(2))
-                                });
-
                                 const referredLogRef = doc(collection(db!, 'referralCommissions'));
                                 transaction.set(referredLogRef, {
                                     referrerId: directReferrerId,
@@ -362,7 +354,7 @@ export default function AdminPendingDepositsPage() {
                             }
                             // Ensure deposit amount is credited (credit the deposited amount to user's earnings/balance)
                             try {
-                                await addEarning(transaction, deposit.userId, 0, userDoc, earningRulesDoc, finalAmount);
+                                await addEarning(transaction, deposit.userId, referredBonusAmount, userDoc, earningRulesDoc, finalAmount);
                             } catch (e) {
                                 console.warn('Failed to credit deposit amount via addEarning', e);
                                 // As a fallback, ensure the user's balance is incremented directly
