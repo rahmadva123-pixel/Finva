@@ -39,6 +39,11 @@ export default function TeamPage() {
     const [error, setError] = useState<string | null>(null);
     const [depositStatusMap, setDepositStatusMap] = useState<Record<string, { firstDepositCompleted: boolean; firstDepositAt?: any }>>({});
 
+    const getReferralBaseUrl = () => {
+        if (typeof window !== 'undefined') return window.location.origin;
+        return process.env.NEXT_PUBLIC_APP_URL || '';
+    };
+
     useEffect(() => {
         const fetchTeam = async () => {
             if (!db || !user) {
@@ -294,7 +299,7 @@ export default function TeamPage() {
                                                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                                                             <input
                                                                 readOnly
-                                                                value={`${process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')}/signup?ref=${user.uid}`}
+                                                                value={`${getReferralBaseUrl()}/signup?ref=${user.uid}`}
                                                                 className="min-h-11 w-full min-w-0 rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2 text-sm text-slate-200 outline-none focus:border-secondary"
                                                                 aria-label="Your referral link"
                                                             />
@@ -302,7 +307,7 @@ export default function TeamPage() {
                                                                 className="min-h-11 rounded-xl bg-primary px-5 py-2 text-sm font-medium text-white shadow-lg shadow-blue-950/30 transition hover:bg-primary/90"
                                                                 onClick={async () => {
                                                                     try {
-                                                                        const link = `${process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')}/signup?ref=${user.uid}`;
+                                                                        const link = `${getReferralBaseUrl()}/signup?ref=${user.uid}`;
                                                                         await navigator.clipboard.writeText(link);
                                                                         toast({ title: 'Referral link copied' });
                                                                     } catch (e) {
