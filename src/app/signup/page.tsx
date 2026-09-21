@@ -276,8 +276,8 @@ function SignUpPageContent() {
 
   return (
     <AuthLayout>
-      <div className="w-full max-w-[380px] mx-auto px-4 sm:max-w-[560px]">
-        <Card className="rounded-[20px] border-0 bg-transparent shadow-none max-h-[88vh] overflow-hidden">
+      <div className="w-full max-w-[560px] mx-auto px-1 sm:px-3">
+        <Card className="rounded-2xl border-0 bg-transparent shadow-none max-h-[88vh] overflow-hidden">
           {isClient ? <SignUpForm /> : <div className="h-[600px] animate-pulse rounded-[20px] bg-muted"></div>}
         </Card>
       </div>
@@ -475,14 +475,14 @@ function SignUpForm() {
 
   return (
     <>
-      <CardHeader className="space-y-2 text-center ml-0 mr-0">
-        <div className="mx-auto inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <span className="text-lg font-bold">✨</span>
+      <CardHeader className="space-y-2 px-4 pb-5 pt-5 text-center sm:px-6">
+        <div className="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-xl border border-blue-400/20 bg-blue-500/10 text-primary shadow-inner shadow-blue-500/10">
+          <span className="text-lg font-bold">+</span>
         </div>
         <CardTitle className="font-headline text-lg sm:text-2xl">{title}</CardTitle>
-        <CardDescription className="text-xs sm:text-sm">{subtitle}</CardDescription>
+        <CardDescription className="text-xs text-slate-400 sm:text-sm">{subtitle}</CardDescription>
       </CardHeader>
-      <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6 overflow-y-auto max-h-[65vh]">
+      <CardContent className="max-h-[65vh] overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -544,7 +544,7 @@ function SignUpForm() {
             </div>
             </div>
         </div>
-          <div className="rounded-2xl border border-border/60 bg-muted/30 p-3">
+          <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
             <div className="flex items-center gap-3">
               <label className="inline-flex items-center text-sm">
                 <input
@@ -570,18 +570,18 @@ function SignUpForm() {
                   }}
                   className="h-4 w-4 rounded border"
                 />
-                <span className="ml-2">{humanPending ? 'Verifying...' : "I'm human"}</span>
+                <span className="ml-2 text-sm text-slate-300">{humanPending ? 'Verifying...' : "I'm human"}</span>
               </label>
             </div>
           </div>
-          <Button type="submit" className="min-h-[48px] w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 py-3">
+          <Button type="submit" className="min-h-[48px] w-full rounded-xl bg-primary py-3 text-primary-foreground shadow-lg shadow-blue-950/40 hover:bg-primary/90">
             Create Account
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex items-center justify-between px-4 pb-5 text-sm">
+      <CardFooter className="flex items-center justify-center px-4 pb-5 text-sm">
         <div>
-          <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
+          <Link href="/login" className="font-medium text-secondary underline-offset-4 hover:text-white hover:underline">
             Already have an account? Sign in
           </Link>
         </div>

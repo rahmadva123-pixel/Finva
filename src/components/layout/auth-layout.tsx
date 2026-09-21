@@ -62,28 +62,29 @@ export function AuthLayout({ children, wide = false }: { children: ReactNode; wi
   } : {};
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-3 py-4 sm:p-4" style={backgroundStyle}>
+     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-slate-950 px-3 py-6 text-slate-100 sm:p-6" style={backgroundStyle}>
+       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.22),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(56,189,248,0.10),transparent_34%)]"></div>
        {background?.imageUrl && (
            <div className="absolute inset-0 z-0" style={{ backgroundColor: background.overlayColor }}></div>
        )}
        <div className="absolute left-4 top-4 z-10 sm:left-8 sm:top-8">
-        <div className="flex items-center gap-2 text-foreground">
+        <div className="flex items-center gap-2 text-white">
           {templateLoading ? (
-             <div className="h-8 w-32 bg-muted/50 rounded-md animate-pulse"></div>
+             <div className="h-8 w-32 rounded-md bg-white/10 animate-pulse"></div>
           ) : (
             <>
                 {logoUrl && logoUrl.trim() !== '' ? (
                     <Image src={logoUrl} alt={logoText} width={logoWidth} height={logoHeight} />
                 ) : null}
                 {(!logoUrl || showLogoTextWithImage) && (
-                    <span className="text-xl font-bold font-headline">{logoText}</span>
+                    <span className="text-xl font-bold tracking-tight font-headline">{logoText}</span>
                 )}
             </>
           )}
         </div>
       </div>
       <div className={`z-10 w-full ${wide ? 'max-w-6xl' : 'max-w-md sm:max-w-lg'}`}>
-        <div className={wide ? 'w-full' : 'rounded-[28px] border border-border/60 bg-card/90 p-1 shadow-2xl backdrop-blur'}>
+        <div className={wide ? 'w-full' : 'rounded-[28px] border border-white/10 bg-slate-900/90 p-1 shadow-2xl shadow-blue-950/40 backdrop-blur-xl'}>
           {children}
         </div>
       </div>

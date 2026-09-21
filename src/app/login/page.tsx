@@ -173,43 +173,36 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background/60 to-muted p-6 relative overflow-hidden">
-      {/* subtle decorative SVG lines */}
-      <svg className="pointer-events-none absolute inset-0 -z-10 opacity-12" width="100%" height="100%" viewBox="0 0 1440 900" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="g1" x1="0" x2="1">
-            <stop offset="0%" stopColor="rgba(99,102,241,0.04)" />
-            <stop offset="100%" stopColor="rgba(139,92,246,0.01)" />
-          </linearGradient>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#g1)" />
-      </svg>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-transparent px-3 py-6 sm:p-6">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/10 blur-3xl"></div>
 
-      <div className="w-full max-w-[380px] mx-auto px-4 sm:max-w-[420px]">
-        <div className="relative rounded-2xl bg-card/95 border border-border/60 p-6 shadow-xl overflow-hidden animate-float-y max-h-[88vh]">
-          <div className="absolute left-0 top-0 h-full w-1.5 bg-primary/90"></div>
-          <div className="mb-4 text-center ml-3">
-            <div className="mx-auto h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">🔐</div>
+      <div className="relative w-full max-w-[420px] mx-auto">
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/95 p-6 shadow-2xl shadow-blue-950/40 backdrop-blur-xl sm:p-8">
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary"></div>
+          <div className="mb-6 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-blue-400/20 bg-blue-500/10 text-primary shadow-inner shadow-blue-500/10">
+              <Lock className="h-5 w-5" />
+            </div>
             <h2 className="text-lg sm:text-2xl font-semibold mt-3">{title}</h2>
-            <p className="text-xs sm:text-sm text-muted-foreground">{subtitle}</p>
+            <p className="text-xs sm:text-sm text-slate-400">{subtitle}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" aria-label="Login form">
-            {errorMessage && <div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">{errorMessage}</div>}
+            {errorMessage && <div className="rounded-xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200">{errorMessage}</div>}
 
             <div>
-              <label htmlFor="email" className="text-sm font-medium">Email or Phone</label>
+              <label htmlFor="email" className="text-sm font-medium text-slate-200">Email or Phone</label>
               <div className="mt-2 relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"><Mail className="h-4 w-4" /></div>
-                <Input id="email" name="email" type="text" placeholder="you@company.com or +123456789" defaultValue={isLocalDev ? localDevEmail : ""} className="pl-10 rounded-xl min-h-[48px] text-base" required />
+                <Input id="email" name="email" type="text" placeholder="you@company.com or +123456789" defaultValue={isLocalDev ? localDevEmail : ""} className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] pl-10 text-base text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="text-sm font-medium">Password or Passcode</label>
+              <label htmlFor="password" className="text-sm font-medium text-slate-200">Password or Passcode</label>
               <div className="mt-2 relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"><Lock className="h-4 w-4" /></div>
-                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password or passcode" defaultValue={isLocalDev ? localDevPassword : ''} className="pl-10 rounded-xl min-h-[48px] text-base" required />
+                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password or passcode" defaultValue={isLocalDev ? localDevPassword : ''} className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] pl-10 pr-12 text-base text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
@@ -219,7 +212,7 @@ function LoginForm() {
             {/* only human verification checkbox remains */}
 
             <div className="flex items-center mt-1">
-              <label className="inline-flex items-center text-sm">
+              <label className="inline-flex items-center text-sm text-slate-300">
                 <input
                   type="checkbox"
                   checked={humanConfirmed || humanPending}
@@ -247,18 +240,18 @@ function LoginForm() {
               </label>
             </div>
 
-            <Button type="submit" className="w-full py-4 text-base bg-primary text-white hover:opacity-95 active:scale-95 transition disabled:opacity-60" disabled={processing}>
+            <Button type="submit" className="w-full rounded-xl bg-primary py-4 text-base text-white shadow-lg shadow-blue-950/40 transition hover:bg-primary/90 active:scale-[0.99] disabled:opacity-60" disabled={processing}>
               {processing ? <><Loader2 className="h-4 w-4 animate-spin mr-2 inline" /> Unlocking...</> : 'Unlock Account'}
             </Button>
 
             <div className="mt-3 flex items-center justify-between text-sm">
-              <Link href="/forgot-password" className="text-primary">Trouble signing in? Reset</Link>
-              <Link href="/signup" className="text-muted-foreground">Open an Account</Link>
+              <Link href="/forgot-password" className="text-secondary transition-colors hover:text-white">Trouble signing in? Reset</Link>
+              <Link href="/signup" className="text-slate-400 transition-colors hover:text-white">Open an Account</Link>
             </div>
 
             {/* Download App button removed per request */}
 
-            <div className="text-center text-xs text-muted-foreground mt-2">Two-factor enabled accounts may require extra verification</div>
+            <div className="mt-2 text-center text-xs text-slate-500">Two-factor enabled accounts may require extra verification</div>
           </form>
         </div>
       </div>
