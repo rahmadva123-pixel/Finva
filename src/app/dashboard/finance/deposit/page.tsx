@@ -724,7 +724,7 @@ export default function DepositPage() {
                       setFormValues({});
                       setSelectedMethod(null);
                       setSelectedNetwork(null);
-                      router.push('/dashboard/finance/history');
+                      router.push('/dashboard');
                   }}>
                      Done
                   </Button>

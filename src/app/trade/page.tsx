@@ -90,7 +90,9 @@ export default function TradePage() {
   React.useEffect(() => {
     const updateNextEarning = () => {
       if (!lastDailyEarningAt) {
-        setNextEarningRemainingMs(0);
+        const nextCycle = new Date();
+        nextCycle.setHours(24, 0, 0, 0);
+        setNextEarningRemainingMs(Math.max(0, nextCycle.getTime() - Date.now()));
         return;
       }
       const cycleMs = 24 * 60 * 60 * 1000;
@@ -216,7 +218,9 @@ export default function TradePage() {
                   <>Claim Earnings <span className="ml-2 text-xs opacity-60">{formatCooldown(cooldownRemainingMs)}</span></>
                 ) : canClaim ? 'Claim Earnings' : nextEarningRemainingMs > 0 ? (
                   <>Next Earnings <span className="ml-2 text-xs opacity-60">{formatCooldown(nextEarningRemainingMs)}</span></>
-                ) : 'Waiting for daily earnings'}
+                ) : (
+                  <>Next Earnings <span className="ml-2 text-xs opacity-60">{formatCooldown(nextEarningRemainingMs || 24 * 60 * 60 * 1000)}</span></>
+                )}
               </Button>
             </TradingCard>
 
