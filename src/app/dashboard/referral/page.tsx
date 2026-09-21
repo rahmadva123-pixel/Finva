@@ -325,7 +325,7 @@ export default function TeamPage() {
                 <div className="grid gap-4 sm:grid-cols-3">
                     <Card className="border-primary/20 bg-primary/[0.06]">
                         <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Direct referrals</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Completed direct referrals</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-3xl font-bold text-primary">{teamUser ? teamUser.directTeamSize : 0}</div>
@@ -333,7 +333,7 @@ export default function TeamPage() {
                     </Card>
                     <Card className="border-secondary/20 bg-secondary/[0.06]">
                         <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">Total team size</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Completed team size</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-3xl font-bold text-secondary">{teamUser ? teamUser.totalTeamSize : 0}</div>

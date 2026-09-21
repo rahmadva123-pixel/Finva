@@ -271,13 +271,7 @@ interface CurrencySettings {
           p2p.forEach(d => { const data = d.data(); all.push({ id: d.id, amount: Number(data.amount||0), title: data.title || '', type: data.type || 'receive', status: 'completed', date: data.date }); });
 
           all.sort((a,b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
-          const demoTxs = [
-            { id: 'demo1', amount: 125.00, title: 'Demo Deposit via Card', type: 'deposit', status: 'completed', date: { seconds: Math.floor(Date.now()/1000) - 3600 } },
-            { id: 'demo2', amount: 50.00, title: 'Demo Withdrawal via Bank', type: 'withdraw', status: 'completed', date: { seconds: Math.floor(Date.now()/1000) - 7200 } },
-            { id: 'demo3', amount: 5.00, title: 'Demo Referral Bonus', type: 'bonus', status: 'completed', date: { seconds: Math.floor(Date.now()/1000) - 10800 } },
-          ];
-          const items = all.length > 0 ? all.slice(0,6) : demoTxs;
-          setTxs(items);
+          setTxs(all.slice(0, 6));
         } catch (e) {
           console.error('Error fetching recent activity', e);
         } finally {
