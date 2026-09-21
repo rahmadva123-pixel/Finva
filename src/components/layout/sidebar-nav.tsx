@@ -161,7 +161,7 @@ export function SidebarNav() {
     };
     fetchSettings();
 
-     if (user) {
+      if (user && db) {
         calculateTotalEarning();
         const userDocRef = doc(db, "users", user.uid);
         const unsubscribe = onSnapshot(userDocRef, (doc) => {

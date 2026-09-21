@@ -46,15 +46,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
     }
 
-    if (auth && db) {
-      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const firebaseAuth = auth;
+    const firestore = db;
+
+    if (firebaseAuth && firestore) {
+      const unsubscribe = onAuthStateChanged(firebaseAuth, async (currentUser) => {
         setUser(currentUser);
 
         try {
           if (currentUser) {
             const [userDoc, verificationSettingsDoc] = await Promise.all([
-              getDoc(doc(db, 'users', currentUser.uid)),
-              getDoc(doc(db, 'settings', 'verification')),
+              getDoc(doc(firestore, 'users', currentUser.uid)),
+              getDoc(doc(firestore, 'settings', 'verification')),
             ]);
 
             const userData = userDoc.exists() ? userDoc.data() : null;

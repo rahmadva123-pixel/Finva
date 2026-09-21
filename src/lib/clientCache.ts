@@ -5,12 +5,7 @@ import { db } from './firebase';
 // TTL defaults to 5 minutes. Safe fallback: if localStorage unavailable or on server, it performs direct getDoc.
 export async function getCachedDoc(collectionName: string, docId: string, ttlMs = 5 * 60 * 1000) {
   if (typeof window === 'undefined' || !db) {
-    try {
-      const snap = await getDoc(doc(db, collectionName, docId));
-      return snap.exists() ? snap.data() : null;
-    } catch {
-      return null;
-    }
+    return null;
   }
 
   const key = `cache:${collectionName}/${docId}`;
