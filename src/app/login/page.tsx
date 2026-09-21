@@ -20,8 +20,8 @@ import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
-  const [title, setTitle] = useState("Access Your Trading Account");
-  const [subtitle, setSubtitle] = useState("Sign in to continue.");
+  const [title, setTitle] = useState("Welcome back to Finva");
+  const [subtitle, setSubtitle] = useState("Sign in to manage your portfolio and trades.");
   const [humanConfirmed, setHumanConfirmed] = useState(false);
   const [humanPending, setHumanPending] = useState(false);
   const humanTimerRef = useRef<number | null>(null);
@@ -191,18 +191,18 @@ function LoginForm() {
             {errorMessage && <div className="rounded-xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200">{errorMessage}</div>}
 
             <div>
-              <label htmlFor="email" className="text-sm font-medium text-slate-200">Email or Phone</label>
+              <label htmlFor="email" className="text-sm font-medium text-slate-200">Email address or phone</label>
               <div className="mt-2 relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"><Mail className="h-4 w-4" /></div>
-                <Input id="email" name="email" type="text" placeholder="you@company.com or +123456789" defaultValue={isLocalDev ? localDevEmail : ""} className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] pl-10 text-base text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
+                <Input id="email" name="email" type="text" placeholder="you@example.com or +123456789" defaultValue={isLocalDev ? localDevEmail : ""} className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] pl-10 text-base text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="text-sm font-medium text-slate-200">Password or Passcode</label>
+              <label htmlFor="password" className="text-sm font-medium text-slate-200">Password</label>
               <div className="mt-2 relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"><Lock className="h-4 w-4" /></div>
-                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password or passcode" defaultValue={isLocalDev ? localDevPassword : ''} className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] pl-10 pr-12 text-base text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
+                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" defaultValue={isLocalDev ? localDevPassword : ''} className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] pl-10 pr-12 text-base text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
@@ -241,17 +241,17 @@ function LoginForm() {
             </div>
 
             <Button type="submit" className="w-full rounded-xl bg-primary py-4 text-base text-white shadow-lg shadow-blue-950/40 transition hover:bg-primary/90 active:scale-[0.99] disabled:opacity-60" disabled={processing}>
-              {processing ? <><Loader2 className="h-4 w-4 animate-spin mr-2 inline" /> Unlocking...</> : 'Unlock Account'}
+              {processing ? <><Loader2 className="h-4 w-4 animate-spin mr-2 inline" /> Signing in...</> : 'Sign in to Finva'}
             </Button>
 
             <div className="mt-3 flex items-center justify-between text-sm">
-              <Link href="/forgot-password" className="text-secondary transition-colors hover:text-white">Trouble signing in? Reset</Link>
-              <Link href="/signup" className="text-slate-400 transition-colors hover:text-white">Open an Account</Link>
+              <Link href="/forgot-password" className="text-secondary transition-colors hover:text-white">Forgot password?</Link>
+              <Link href="/signup" className="text-slate-400 transition-colors hover:text-white">Create account</Link>
             </div>
 
             {/* Download App button removed per request */}
 
-            <div className="mt-2 text-center text-xs text-slate-500">Two-factor enabled accounts may require extra verification</div>
+            <div className="mt-2 text-center text-xs text-slate-500">Secure access for your Finva account</div>
           </form>
         </div>
       </div>

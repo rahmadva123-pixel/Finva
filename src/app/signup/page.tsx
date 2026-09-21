@@ -289,8 +289,8 @@ function SignUpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const [title, setTitle] = useState("Open your trading account");
-  const [subtitle, setSubtitle] = useState("Fast signup — email or phone. Keep your details safe.");
+  const [title, setTitle] = useState("Create your Finva account");
+  const [subtitle, setSubtitle] = useState("Build your portfolio with a secure trading account.");
   const [country, setCountry] = useState("");
   const [referredBy, setReferredBy] = useState<string | null>(null);
   const [humanConfirmed, setHumanConfirmed] = useState(false);
@@ -485,32 +485,32 @@ function SignUpForm() {
       <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="name@example.com" className="min-h-[48px] rounded-xl text-sm" required />
+            <Label htmlFor="email" className="text-slate-200">Email address</Label>
+          <Input id="email" name="email" type="email" placeholder="name@example.com" className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
           </div>
           <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" name="phone" type="tel" placeholder="+123456789" className="min-h-[48px] rounded-xl text-sm" />
+          <Label htmlFor="phone" className="text-slate-200">Phone number</Label>
+          <Input id="phone" name="phone" type="tel" placeholder="+123456789" className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" />
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input id="firstName" name="firstName" placeholder="John" className="min-h-[48px] rounded-xl text-sm" required />
+            <Label htmlFor="firstName" className="text-slate-200">First name</Label>
+            <Input id="firstName" name="firstName" placeholder="John" className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
           </div>
            <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input id="lastName" name="lastName" placeholder="Doe" className="min-h-[48px] rounded-xl text-sm" required />
+            <Label htmlFor="lastName" className="text-slate-200">Last name</Label>
+            <Input id="lastName" name="lastName" placeholder="Doe" className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
           </div>
         </div>
          <div className="space-y-2">
-          <Label htmlFor="userName">User Name</Label>
-          <Input id="userName" name="userName" placeholder="johndoe" className="min-h-[48px] rounded-xl text-sm" required />
+          <Label htmlFor="userName" className="text-slate-200">Username</Label>
+          <Input id="userName" name="userName" placeholder="johndoe" className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="country">Country</Label>
+          <Label htmlFor="country" className="text-slate-200">Country</Label>
           <Select name="country" required onValueChange={setCountry}>
-            <SelectTrigger id="country" className="min-h-[48px] rounded-xl text-sm">
+            <SelectTrigger id="country" className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] text-sm text-white focus:ring-secondary">
               <SelectValue placeholder="Select Country" />
             </SelectTrigger>
             <SelectContent>
@@ -526,18 +526,18 @@ function SignUpForm() {
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-            <Label htmlFor="password">Create Password</Label>
+            <Label htmlFor="password" className="text-slate-200">Create password</Label>
             <div className="relative">
-              <Input id="password" name="password" type={showPassword ? "text" : "password"} className="min-h-[48px] rounded-xl pr-12 text-sm" required />
+              <Input id="password" name="password" type={showPassword ? "text" : "password"} className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] pr-12 text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
               <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"}>
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
             </div>
             <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword" className="text-slate-200">Confirm password</Label>
             <div className="relative">
-              <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} className="min-h-[48px] rounded-xl pr-12 text-sm" required />
+              <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} className="min-h-[48px] rounded-xl border-white/10 bg-white/[0.06] pr-12 text-sm text-white placeholder:text-slate-500 focus-visible:ring-secondary" required />
               <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-10 w-10 -translate-y-1/2 rounded-xl text-muted-foreground" onClick={() => setShowConfirmPassword((value) => !value)} aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}>
                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
@@ -575,7 +575,7 @@ function SignUpForm() {
             </div>
           </div>
           <Button type="submit" className="min-h-[48px] w-full rounded-xl bg-primary py-3 text-primary-foreground shadow-lg shadow-blue-950/40 hover:bg-primary/90">
-            Create Account
+            Create my account
           </Button>
         </form>
       </CardContent>
