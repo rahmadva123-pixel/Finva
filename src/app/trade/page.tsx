@@ -28,8 +28,6 @@ export default function TradePage() {
   const [claimCooldownHours, setClaimCooldownHours] = useState(24);
   const [lastClaimedAt, setLastClaimedAt] = useState<number | null>(null);
   const [cooldownRemainingMs, setCooldownRemainingMs] = useState(0);
-  const [lastDailyEarningAt, setLastDailyEarningAt] = useState<number | null>(null);
-  const [nextEarningRemainingMs, setNextEarningRemainingMs] = useState(0);
   const [claiming, setClaiming] = useState(false);
 
   React.useEffect(() => {
@@ -63,8 +61,6 @@ export default function TradePage() {
       if (!snapshot.empty) {
         const latest = snapshot.docs[0].data();
         setDailyRate(Number(latest.rate || 0));
-        const latestDate = latest.createdAt?.toDate?.() || latest.date?.toDate?.() || new Date(latest.date);
-        if (!Number.isNaN(latestDate.getTime())) setLastDailyEarningAt(latestDate.getTime());
       }
     };
 
@@ -86,23 +82,6 @@ export default function TradePage() {
     const timer = window.setInterval(updateCooldown, 1000);
     return () => window.clearInterval(timer);
   }, [lastClaimedAt, claimCooldownHours]);
-
-  React.useEffect(() => {
-    const updateNextEarning = () => {
-      if (!lastDailyEarningAt) {
-        const nextCycle = new Date();
-        nextCycle.setHours(24, 0, 0, 0);
-        setNextEarningRemainingMs(Math.max(0, nextCycle.getTime() - Date.now()));
-        return;
-      }
-      const cycleMs = 24 * 60 * 60 * 1000;
-      setNextEarningRemainingMs(Math.max(0, cycleMs - (Date.now() - lastDailyEarningAt)));
-    };
-
-    updateNextEarning();
-    const timer = window.setInterval(updateNextEarning, 1000);
-    return () => window.clearInterval(timer);
-  }, [lastDailyEarningAt]);
 
   const canClaim = pendingEarnings >= minClaimAmount && cooldownRemainingMs === 0;
   const formatCooldown = (remainingMs: number) => {
@@ -216,11 +195,7 @@ export default function TradePage() {
               <Button className="mt-4 w-full" onClick={handleClaim} disabled={!canClaim || claiming}>
                 {claiming ? 'Claiming...' : cooldownRemainingMs > 0 ? (
                   <>Claim Earnings <span className="ml-2 text-xs opacity-60">{formatCooldown(cooldownRemainingMs)}</span></>
-                ) : canClaim ? 'Claim Earnings' : nextEarningRemainingMs > 0 ? (
-                  <>Next Earnings <span className="ml-2 text-xs opacity-60">{formatCooldown(nextEarningRemainingMs)}</span></>
-                ) : (
-                  <>Next Earnings <span className="ml-2 text-xs opacity-60">{formatCooldown(nextEarningRemainingMs || 24 * 60 * 60 * 1000)}</span></>
-                )}
+                ) : canClaim ? 'Claim Earnings' : 'No earnings available yet'}
               </Button>
             </TradingCard>
 
