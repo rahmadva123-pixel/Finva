@@ -140,7 +140,16 @@ export default function DepositPage() {
 
         const methodsQuery = query(collection(db, "depositMethods"), where("status", "==", "active"));
         const methodsSnapshot = await getDocs(methodsQuery);
-        const methodsData = methodsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as DepositMethod[];
+        const methodsData = methodsSnapshot.docs.map((methodDoc) => {
+          const data = methodDoc.data();
+          return {
+            id: methodDoc.id,
+            ...data,
+            rate: Number.isFinite(Number(data.rate)) ? Number(data.rate) : 1,
+            fixedCharge: Number.isFinite(Number(data.fixedCharge)) ? Number(data.fixedCharge) : 0,
+            percentCharge: Number.isFinite(Number(data.percentCharge)) ? Number(data.percentCharge) : 0,
+          } as DepositMethod;
+        });
         setMethods(methodsData);
 
         const currencyDoc = await getDoc(doc(db, "settings", "currency"));
@@ -349,10 +358,13 @@ export default function DepositPage() {
     }
   };
   
-  const depositAmount = parseFloat(amount);
-  const fee = selectedMethod ? selectedMethod.fixedCharge + (depositAmount * (selectedMethod.percentCharge / 100)) : 0;
-  const amountToReceive = depositAmount - fee;
-  const amountToSend = selectedMethod ? depositAmount * selectedMethod.rate : 0;
+  const depositAmount = Number.parseFloat(amount) || 0;
+  const fixedCharge = Number(selectedMethod?.fixedCharge) || 0;
+  const percentCharge = Number(selectedMethod?.percentCharge) || 0;
+  const methodRate = Number(selectedMethod?.rate) || 1;
+  const fee = fixedCharge + (depositAmount * (percentCharge / 100));
+  const amountToReceive = Math.max(0, depositAmount - fee);
+  const amountToSend = depositAmount * methodRate;
 
   const renderStep = () => {
     const finalAddress = randomizedDetail?.address || selectedNetwork?.address;
