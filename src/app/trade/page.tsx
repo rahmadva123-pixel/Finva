@@ -30,6 +30,7 @@ export default function TradePage() {
   const [cooldownRemainingMs, setCooldownRemainingMs] = useState(0);
   const [dailyEarningCreatedAt, setDailyEarningCreatedAt] = useState<number | null>(null);
   const [dailyEarningRemainingMs, setDailyEarningRemainingMs] = useState(0);
+  const [dailyEarningsError, setDailyEarningsError] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
 
   React.useEffect(() => {
@@ -51,14 +52,6 @@ export default function TradePage() {
       setClaimCooldownHours(Number(settings.claimCooldownHours || 24));
     }).catch(() => undefined);
 
-    void auth?.currentUser?.getIdToken().then(async (token) => {
-      if (!token) return;
-      await fetch('/api/earnings/accrue', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-    }).catch(() => undefined);
-
     const loadLatestRate = async () => {
       const earningsQuery = query(
         collection(firestore, 'earningTransactions'),
@@ -76,7 +69,22 @@ export default function TradePage() {
       }
     };
 
-    void loadLatestRate().catch(() => setDailyRate(null));
+    const accrueDailyEarnings = async () => {
+      const token = await user.getIdToken();
+
+      const response = await fetch('/api/earnings/accrue', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result?.error || 'Daily earnings are unavailable.');
+      await loadLatestRate();
+    };
+
+    void accrueDailyEarnings().catch((error) => {
+      setDailyRate(null);
+      setDailyEarningsError(error instanceof Error ? error.message : 'Daily earnings are unavailable.');
+    });
     return () => unsubscribe();
   }, [user]);
 
@@ -215,7 +223,7 @@ export default function TradePage() {
                 <div className="text-right">
                   <p className="text-lg font-bold">${pendingEarnings.toFixed(2)}</p>
                   <p className="text-xs text-muted-foreground">
-                    {dailyRate === null ? 'Rate unavailable' : `${(dailyRate * 100).toFixed(2)}% daily`}
+                    {dailyEarningsError || (dailyRate === null ? 'Loading daily rate...' : `${(dailyRate * 100).toFixed(2)}% daily`)}
                   </p>
                 </div>
               </div>
