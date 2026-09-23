@@ -28,6 +28,8 @@ export default function TradePage() {
   const [claimCooldownHours, setClaimCooldownHours] = useState(24);
   const [lastClaimedAt, setLastClaimedAt] = useState<number | null>(null);
   const [cooldownRemainingMs, setCooldownRemainingMs] = useState(0);
+  const [dailyEarningCreatedAt, setDailyEarningCreatedAt] = useState<number | null>(null);
+  const [dailyEarningRemainingMs, setDailyEarningRemainingMs] = useState(0);
   const [claiming, setClaiming] = useState(false);
 
   React.useEffect(() => {
@@ -69,6 +71,8 @@ export default function TradePage() {
       if (!snapshot.empty) {
         const latest = snapshot.docs[0].data();
         setDailyRate(Number(latest.rate || 0));
+        const createdAt = latest.createdAt?.toDate?.() || latest.date?.toDate?.();
+        if (createdAt) setDailyEarningCreatedAt(createdAt.getTime());
       }
     };
 
@@ -91,7 +95,22 @@ export default function TradePage() {
     return () => window.clearInterval(timer);
   }, [lastClaimedAt, claimCooldownHours]);
 
-  const canClaim = pendingEarnings >= minClaimAmount && cooldownRemainingMs === 0;
+  React.useEffect(() => {
+    const updateDailyEarningCountdown = () => {
+      if (!dailyEarningCreatedAt || lastClaimedAt) {
+        setDailyEarningRemainingMs(0);
+        return;
+      }
+      const cycleMs = 24 * 60 * 60 * 1000;
+      setDailyEarningRemainingMs(Math.max(0, cycleMs - (Date.now() - dailyEarningCreatedAt)));
+    };
+
+    updateDailyEarningCountdown();
+    const timer = window.setInterval(updateDailyEarningCountdown, 1000);
+    return () => window.clearInterval(timer);
+  }, [dailyEarningCreatedAt, lastClaimedAt]);
+
+  const canClaim = pendingEarnings >= minClaimAmount && cooldownRemainingMs === 0 && dailyEarningRemainingMs === 0;
   const formatCooldown = (remainingMs: number) => {
     const totalSeconds = Math.ceil(remainingMs / 1000);
     const hours = Math.floor(totalSeconds / 3600);
@@ -203,6 +222,8 @@ export default function TradePage() {
               <Button className="mt-4 w-full" onClick={handleClaim} disabled={!canClaim || claiming}>
                 {claiming ? 'Claiming...' : cooldownRemainingMs > 0 ? (
                   <>Claim Earnings <span className="ml-2 text-xs opacity-60">{formatCooldown(cooldownRemainingMs)}</span></>
+                ) : dailyEarningRemainingMs > 0 ? (
+                  <>Claim Earnings <span className="ml-2 text-xs opacity-60">{formatCooldown(dailyEarningRemainingMs)}</span></>
                 ) : canClaim ? 'Claim Earnings' : 'No earnings available yet'}
               </Button>
             </TradingCard>
