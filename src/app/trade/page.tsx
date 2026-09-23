@@ -49,6 +49,14 @@ export default function TradePage() {
       setClaimCooldownHours(Number(settings.claimCooldownHours || 24));
     }).catch(() => undefined);
 
+    void auth?.currentUser?.getIdToken().then(async (token) => {
+      if (!token) return;
+      await fetch('/api/earnings/accrue', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    }).catch(() => undefined);
+
     const loadLatestRate = async () => {
       const earningsQuery = query(
         collection(firestore, 'earningTransactions'),
