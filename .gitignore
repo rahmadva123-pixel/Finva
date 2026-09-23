@@ -74,3 +74,4 @@ firebase-debug.log
 firestore-debug.log
 .env.local
 .vercel
+firebase-service-account.json
