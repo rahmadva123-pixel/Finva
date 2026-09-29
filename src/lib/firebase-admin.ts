@@ -1,6 +1,9 @@
-import admin from 'firebase-admin';
-import fs from 'fs';
-import path from 'path';
+const admin = require('firebase-admin');
+const fs = require('fs');
+const path = require('path');
+
+let adminApp: any = null;
+let initializationAttempted = false;
 
 // Try to use service account file if available
 // Check both current directory and parent directory for the service account file
@@ -42,12 +45,19 @@ export function isFirebaseAdminConfigured() {
 	return hasProjectId && hasClientEmail && hasPrivateKey;
 }
 
-let adminApp: any = null;
-if (serviceAccount || isFirebaseAdminConfigured()) {
+function initializeFirebaseAdmin() {
+	if (initializationAttempted) return adminApp;
+	initializationAttempted = true;
+
+	if (!serviceAccount && !isFirebaseAdminConfigured()) {
+		console.log('Firebase Admin not configured, skipping initialization');
+		return null;
+	}
+
 	try {
 		console.log('Attempting Firebase Admin initialization...');
 
-		if (!admin.apps || !admin.apps.length) {
+		if (!admin.apps || admin.apps.length === 0) {
 			let credentialObj: any;
 
 			if (serviceAccount) {
@@ -76,9 +86,23 @@ if (serviceAccount || isFirebaseAdminConfigured()) {
 		console.error('Firebase Admin init error:', err?.message || err);
 		console.error('Full error:', err);
 	}
+
+	return adminApp;
 }
 
-export function getFirebaseAdminApp() { return adminApp; }
-export function getFirebaseAdminAuth() { return adminApp ? admin.auth() : null; }
-export function getFirebaseAdminDb() { return adminApp ? admin.firestore() : null; }
+export function getFirebaseAdminApp() {
+	if (!adminApp) return initializeFirebaseAdmin();
+	return adminApp;
+}
+
+export function getFirebaseAdminAuth() {
+	const app = getFirebaseAdminApp();
+	return app ? admin.auth() : null;
+}
+
+export function getFirebaseAdminDb() {
+	const app = getFirebaseAdminApp();
+	return app ? admin.firestore() : null;
+}
+
 export default admin;
