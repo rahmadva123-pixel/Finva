@@ -76,6 +76,7 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isManageOpen, setIsManageOpen] = useState(false);
   const [balanceAmount, setBalanceAmount] = useState('');
+  const [balanceDescription, setBalanceDescription] = useState('');
   const [currency, setCurrency] = useState<CurrencySettings>({ symbol: '$', position: 'left' });
   const [isMailDialogOpen, setIsMailDialogOpen] = useState(false);
   const [mailTemplates, setMailTemplates] = useState<MailTemplate[]>([]);
@@ -145,6 +146,7 @@ export default function AdminUsersPage() {
   const handleManageUser = (user: User) => {
     setSelectedUser(user);
     setBalanceAmount('');
+    setBalanceDescription('');
     setIsManageOpen(true);
   }
 
@@ -206,9 +208,20 @@ export default function AdminUsersPage() {
             }
 
             transaction.update(userRef, { balance: newBalance });
+
+            // Create transaction record
+            const transactionRef = doc(collection(db, 'investmentTransactions'));
+            transaction.set(transactionRef, {
+                userId: selectedUser.id,
+                amount: amount,
+                date: new Date(),
+                type: operation === 'add' ? 'Manual Balance Addition' : 'Manual Balance Deduction',
+                planName: balanceDescription || 'Manual Adjustment',
+                description: balanceDescription || 'Manual balance adjustment by admin'
+            });
         });
-        
-        toast({ title: 'Success', description: 'User balance updated.'});
+
+        toast({ title: 'Success', description: 'User balance updated and transaction recorded.'});
         fetchUsers();
         setIsManageOpen(false);
 
@@ -426,8 +439,10 @@ export default function AdminUsersPage() {
               <div className="space-y-4 py-4">
                    <div className="space-y-2 p-4 border rounded-lg">
                         <Label htmlFor="balance-amount">Update Balance</Label>
+                        <Input id="balance-amount" type="number" placeholder="Amount" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)} className="mb-2" />
+                        <Label htmlFor="balance-description">Description (Optional)</Label>
+                        <Input id="balance-description" type="text" placeholder="e.g., Bonus payment, Refund, etc." value={balanceDescription} onChange={(e) => setBalanceDescription(e.target.value)} className="mb-2" />
                         <div className="flex gap-2">
-                            <Input id="balance-amount" type="number" placeholder="Amount" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)} />
                             <Button variant="outline" onClick={() => handleUpdateBalance('add')}>Add</Button>
                             <Button variant="destructive" onClick={() => handleUpdateBalance('remove')}>Remove</Button>
                         </div>

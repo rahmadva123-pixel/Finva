@@ -16,8 +16,9 @@ interface Transaction {
     id: string;
     amount: number;
     date: any;
-    type: 'Invested' | 'Profit Return (Auto)' | 'Profit Return (Manual)' | 'Capital Back (Auto)' | 'Capital Back (Manual)';
+    type: 'Invested' | 'Profit Return (Auto)' | 'Profit Return (Manual)' | 'Capital Back (Auto)' | 'Capital Back (Manual)' | 'Manual Balance Addition' | 'Manual Balance Deduction';
     planName: string;
+    description?: string;
 }
 
 interface CurrencySettings {
@@ -40,6 +41,8 @@ export default function TransactionHistoryPage() {
         const fetchTransactions = async () => {
             setLoading(true);
             try {
+                if (!db) return;
+
                 // Fetch Currency
                 const currencyDoc = await getDoc(doc(db, "settings", "currency"));
                 if (currencyDoc.exists()) {
@@ -61,7 +64,7 @@ export default function TransactionHistoryPage() {
                         planName: data.planName,
                     });
                 });
-                
+
                 // Fetch returns and capital backs from investmentTransactions
                 const transactionLogQuery = query(collection(db, "investmentTransactions"), where("userId", "==", user.uid));
                 const transactionLogSnapshot = await getDocs(transactionLogQuery);
@@ -73,6 +76,7 @@ export default function TransactionHistoryPage() {
                         date: data.date,
                         type: data.type,
                         planName: data.planName,
+                        description: data.description,
                     });
                 });
 
@@ -107,6 +111,12 @@ export default function TransactionHistoryPage() {
         if (type.includes('Capital')) {
              return <Badge variant="secondary">Capital Back</Badge>;
         }
+        if (type.includes('Manual Balance Addition')) {
+            return <Badge variant="default" className="bg-green-500/20 text-green-500 border-none">Manual Addition</Badge>;
+        }
+        if (type.includes('Manual Balance Deduction')) {
+            return <Badge variant="destructive">Manual Deduction</Badge>;
+        }
         return <Badge variant="outline">{type}</Badge>;
     }
 
@@ -136,6 +146,7 @@ export default function TransactionHistoryPage() {
                                 <TableHead>Plan</TableHead>
                                 <TableHead>Type</TableHead>
                                 <TableHead>Amount</TableHead>
+                                <TableHead>Description</TableHead>
                                 <TableHead className="text-right">Date</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -145,6 +156,7 @@ export default function TransactionHistoryPage() {
                                     <TableCell className="font-medium">{t.planName}</TableCell>
                                     <TableCell>{getTypeBadge(t.type)}</TableCell>
                                     <TableCell className="font-semibold">{formatCurrency(t.amount)}</TableCell>
+                                    <TableCell className="text-sm text-muted-foreground">{t.description || '-'}</TableCell>
                                     <TableCell className="text-right">{format(new Date(t.date.seconds * 1000), "PPp")}</TableCell>
                                 </TableRow>
                             ))}
