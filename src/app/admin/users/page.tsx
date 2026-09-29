@@ -217,7 +217,7 @@ export default function AdminUsersPage() {
                 date: new Date(),
                 type: operation === 'add' ? 'Manual Balance Addition' : 'Manual Balance Deduction',
                 planName: balanceDescription || 'Manual Adjustment',
-                description: balanceDescription || 'Manual balance adjustment by admin'
+                description: balanceDescription
             });
         });
 
