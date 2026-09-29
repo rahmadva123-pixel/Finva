@@ -1,6 +1,6 @@
-const admin = require('firebase-admin');
-const fs = require('fs');
-const path = require('path');
+import admin from 'firebase-admin';
+import fs from 'fs';
+import path from 'path';
 
 // Try to use service account file if available
 // Check both current directory and parent directory for the service account file
@@ -11,7 +11,7 @@ let serviceAccount: any = null;
 
 try {
 	if (fs.existsSync(serviceAccountPath)) {
-		serviceAccount = require(serviceAccountPath);
+		serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
 		console.log('Using service account file for Firebase Admin');
 	}
 } catch (e) {
