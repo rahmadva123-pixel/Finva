@@ -3,7 +3,10 @@ const fs = require('fs');
 const path = require('path');
 
 // Try to use service account file if available
-const serviceAccountPath = path.join(process.cwd(), 'firebase-service-account.json');
+// Check both current directory and parent directory for the service account file
+const serviceAccountPath = fs.existsSync(path.join(process.cwd(), 'firebase-service-account.json'))
+  ? path.join(process.cwd(), 'firebase-service-account.json')
+  : path.join(process.cwd(), 'source-code-fixed', 'firebase-service-account.json');
 let serviceAccount: any = null;
 
 try {
