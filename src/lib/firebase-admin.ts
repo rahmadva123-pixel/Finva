@@ -91,18 +91,25 @@ function initializeFirebaseAdmin() {
 }
 
 export function getFirebaseAdminApp() {
+	console.log('getFirebaseAdminApp called, adminApp:', !!adminApp);
 	if (!adminApp) return initializeFirebaseAdmin();
 	return adminApp;
 }
 
 export function getFirebaseAdminAuth() {
+	console.log('getFirebaseAdminAuth called');
 	const app = getFirebaseAdminApp();
-	return app ? admin.auth() : null;
+	const auth = app ? admin.auth() : null;
+	console.log('getFirebaseAdminAuth returning:', !!auth);
+	return auth;
 }
 
 export function getFirebaseAdminDb() {
+	console.log('getFirebaseAdminDb called');
 	const app = getFirebaseAdminApp();
-	return app ? admin.firestore() : null;
+	const db = app ? admin.firestore() : null;
+	console.log('getFirebaseAdminDb returning:', !!db);
+	return db;
 }
 
 export default admin;
