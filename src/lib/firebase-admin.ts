@@ -22,12 +22,12 @@ export function isFirebaseAdminConfigured() {
 	const hasProjectId = !!process.env.FIREBASE_ADMIN_PROJECT_ID;
 	const hasClientEmail = !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
 	const hasPrivateKey = !!process.env.FIREBASE_ADMIN_PRIVATE_KEY;
-	
+
 	// If service account file exists, consider it configured
 	if (serviceAccount) {
 		return true;
 	}
-	
+
 	// Debug logging to see what's missing
 	console.log('Firebase Admin Config Check:', {
 		hasProjectId,
@@ -35,9 +35,10 @@ export function isFirebaseAdminConfigured() {
 		hasPrivateKey,
 		projectId: process.env.FIREBASE_ADMIN_PROJECT_ID ? 'SET' : 'NOT SET',
 		clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL ? 'SET' : 'NOT SET',
-		privateKeyLength: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.length || 0
+		privateKeyLength: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.length || 0,
+		isConfigured: hasProjectId && hasClientEmail && hasPrivateKey
 	});
-	
+
 	return hasProjectId && hasClientEmail && hasPrivateKey;
 }
 
