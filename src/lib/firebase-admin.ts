@@ -4,7 +4,7 @@ const path = require('path');
 
 // Try to use service account file if available
 const serviceAccountPath = path.join(process.cwd(), 'firebase-service-account.json');
-let serviceAccount = null;
+let serviceAccount: any = null;
 
 try {
 	if (fs.existsSync(serviceAccountPath)) {
@@ -20,6 +20,11 @@ export function isFirebaseAdminConfigured() {
 	const hasClientEmail = !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
 	const hasPrivateKey = !!process.env.FIREBASE_ADMIN_PRIVATE_KEY;
 	
+	// If service account file exists, consider it configured
+	if (serviceAccount) {
+		return true;
+	}
+	
 	// Debug logging to see what's missing
 	console.log('Firebase Admin Config Check:', {
 		hasProjectId,
@@ -33,19 +38,19 @@ export function isFirebaseAdminConfigured() {
 	return hasProjectId && hasClientEmail && hasPrivateKey;
 }
 
-let adminApp = null;
+let adminApp: any = null;
 if (serviceAccount || isFirebaseAdminConfigured()) {
 	try {
 		console.log('Attempting Firebase Admin initialization...');
-		
+
 		if (!admin.apps || !admin.apps.length) {
-			let credentialObj;
-			
+			let credentialObj: any;
+
 			if (serviceAccount) {
 				credentialObj = admin.credential.cert(serviceAccount);
 				console.log('Using service account file for credentials');
 			} else {
-				const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n');
+				const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n') || '';
 				const envServiceAccount = {
 					projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
 					clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
@@ -54,14 +59,14 @@ if (serviceAccount || isFirebaseAdminConfigured()) {
 				credentialObj = admin.credential.cert(envServiceAccount);
 				console.log('Using environment variables for credentials');
 			}
-			
+
 			admin.initializeApp({
 				credential: credentialObj,
 			});
 		}
 		adminApp = admin.app();
 		console.log('Firebase Admin initialized successfully');
-	} catch (err) {
+	} catch (err: any) {
 		// keep as stub if initialization fails
 		// eslint-disable-next-line no-console
 		console.error('Firebase Admin init error:', err?.message || err);
