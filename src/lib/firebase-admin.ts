@@ -57,6 +57,9 @@ function initializeFirebaseAdmin() {
 
 		// Lazy load firebase-admin to avoid bundling issues
 		const admin = require('firebase-admin');
+		console.log('Firebase Admin module loaded:', !!admin);
+		console.log('Firebase Admin credential:', !!admin?.credential);
+		console.log('Firebase Admin credential.cert:', !!admin?.credential?.cert);
 
 		if (!admin.apps || admin.apps.length === 0) {
 			let credentialObj: any;
