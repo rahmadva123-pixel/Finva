@@ -1,13 +1,10 @@
-const admin = require('firebase-admin');
-const { credential } = require('firebase-admin');
-const fs = require('fs');
-const path = require('path');
-
 let adminApp: any = null;
 let initializationAttempted = false;
 
 // Try to use service account file if available
 // Check both current directory and parent directory for the service account file
+const fs = require('fs');
+const path = require('path');
 const serviceAccountPath = fs.existsSync(path.join(process.cwd(), 'firebase-service-account.json'))
   ? path.join(process.cwd(), 'firebase-service-account.json')
   : path.join(process.cwd(), 'source-code-fixed', 'firebase-service-account.json');
@@ -58,11 +55,14 @@ function initializeFirebaseAdmin() {
 	try {
 		console.log('Attempting Firebase Admin initialization...');
 
+		// Lazy load firebase-admin to avoid bundling issues
+		const admin = require('firebase-admin');
+
 		if (!admin.apps || admin.apps.length === 0) {
 			let credentialObj: any;
 
 			if (serviceAccount) {
-				credentialObj = credential.cert(serviceAccount);
+				credentialObj = admin.credential.cert(serviceAccount);
 				console.log('Using service account file for credentials');
 			} else {
 				const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n') || '';
@@ -71,7 +71,7 @@ function initializeFirebaseAdmin() {
 					clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
 					privateKey,
 				};
-				credentialObj = credential.cert(envServiceAccount);
+				credentialObj = admin.credential.cert(envServiceAccount);
 				console.log('Using environment variables for credentials');
 			}
 
@@ -100,6 +100,7 @@ export function getFirebaseAdminApp() {
 export function getFirebaseAdminAuth() {
 	console.log('getFirebaseAdminAuth called');
 	const app = getFirebaseAdminApp();
+	const admin = require('firebase-admin');
 	const auth = app ? admin.auth() : null;
 	console.log('getFirebaseAdminAuth returning:', !!auth);
 	return auth;
@@ -108,9 +109,10 @@ export function getFirebaseAdminAuth() {
 export function getFirebaseAdminDb() {
 	console.log('getFirebaseAdminDb called');
 	const app = getFirebaseAdminApp();
+	const admin = require('firebase-admin');
 	const db = app ? admin.firestore() : null;
 	console.log('getFirebaseAdminDb returning:', !!db);
 	return db;
 }
 
-export default admin;
+export default require('firebase-admin');
