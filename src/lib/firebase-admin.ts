@@ -61,11 +61,16 @@ function initializeFirebaseAdmin() {
 		console.log('Firebase Admin credential:', !!admin?.credential);
 		console.log('Firebase Admin credential.cert:', !!admin?.credential?.cert);
 
+		// Try to import credential separately
+		const credential = require('firebase-admin/app').credential;
+		console.log('Credential imported separately:', !!credential);
+		console.log('Credential.cert:', !!credential?.cert);
+
 		if (!admin.apps || admin.apps.length === 0) {
 			let credentialObj: any;
 
 			if (serviceAccount) {
-				credentialObj = admin.credential.cert(serviceAccount);
+				credentialObj = credential.cert(serviceAccount);
 				console.log('Using service account file for credentials');
 			} else {
 				const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n') || '';
@@ -74,7 +79,7 @@ function initializeFirebaseAdmin() {
 					clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
 					privateKey,
 				};
-				credentialObj = admin.credential.cert(envServiceAccount);
+				credentialObj = credential.cert(envServiceAccount);
 				console.log('Using environment variables for credentials');
 			}
 
