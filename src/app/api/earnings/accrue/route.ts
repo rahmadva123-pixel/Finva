@@ -23,7 +23,6 @@ export async function POST(request: Request) {
 
   const adminAuth = getFirebaseAdminAuth();
   const adminDb = getFirebaseAdminDb();
-  if (!adminAuth || !adminDb) return NextResponse.json({ error: "Server not configured" }, { status: 503 });
 
   try {
     const userId = (await adminAuth.verifyIdToken(token)).uid;

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { FieldValue, Transaction } from 'firebase-admin/firestore';
-import admin, { getFirebaseAdminAuth, getFirebaseAdminDb, isFirebaseAdminConfigured } from '@/lib/firebase-admin';
+import { getFirebaseAdminAuth, getFirebaseAdminDb, isFirebaseAdminConfigured } from '@/lib/firebase-admin';
 
 const EARLY_WITHDRAWAL_DAYS = 60;
 const REGULAR_WITHDRAWAL_FEE_PERCENTAGE = 20;
@@ -15,9 +15,9 @@ export async function POST(req: Request) {
     const idToken = match[1];
 
     if (!isFirebaseAdminConfigured()) return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
+
     const adminAuth = getFirebaseAdminAuth();
     const adminDb = getFirebaseAdminDb();
-    if (!adminAuth || !adminDb) return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
 
     const decoded = await adminAuth.verifyIdToken(idToken);
     const uid = decoded.uid;

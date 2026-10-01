@@ -1,29 +1,27 @@
-const admin = require('firebase-admin');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
 
 let adminApp: any = null;
-let initializationAttempted = false;
 
 // Try to use service account file if available
-// Check both current directory and parent directory for the service account file
-const serviceAccountPath = fs.existsSync(path.join(process.cwd(), 'firebase-service-account.json'))
-  ? path.join(process.cwd(), 'firebase-service-account.json')
-  : path.join(process.cwd(), 'source-code-fixed', 'firebase-service-account.json');
+const serviceAccountPath = existsSync(join(process.cwd(), 'firebase-service-account.json'))
+  ? join(process.cwd(), 'firebase-service-account.json')
+  : join(process.cwd(), 'source-code-fixed', 'firebase-service-account.json');
+
 let serviceAccount: any = null;
 
 try {
-	if (fs.existsSync(serviceAccountPath)) {
-		serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-		console.log('Using service account file for Firebase Admin');
+	if (existsSync(serviceAccountPath)) {
+		serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'));
 	}
 } catch (e) {
-	console.log('Service account file not found, will use environment variables');
+	// Service account file not found, will use environment variables
 }
 
-// Create service account file from environment variables at runtime
-function createServiceAccountFromEnv() {
+function getServiceAccountFromEnv() {
 	const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
 	const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
 	const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n');
@@ -32,7 +30,7 @@ function createServiceAccountFromEnv() {
 		return null;
 	}
 
-	const serviceAccount = {
+	return {
 		type: 'service_account',
 		project_id: projectId,
 		private_key_id: '',
@@ -44,14 +42,6 @@ function createServiceAccountFromEnv() {
 		auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
 		client_x509_cert_url: ''
 	};
-
-	// Write to temp file
-	const tempDir = os.tmpdir();
-	const tempFilePath = path.join(tempDir, 'firebase-service-account-temp.json');
-	fs.writeFileSync(tempFilePath, JSON.stringify(serviceAccount, null, 2));
-	console.log('Created temporary service account file from environment variables:', tempFilePath);
-
-	return tempFilePath;
 }
 
 export function isFirebaseAdminConfigured() {
@@ -64,88 +54,72 @@ export function isFirebaseAdminConfigured() {
 		return true;
 	}
 
-	// Debug logging to see what's missing
-	console.log('Firebase Admin Config Check:', {
-		hasProjectId,
-		hasClientEmail,
-		hasPrivateKey,
-		projectId: process.env.FIREBASE_ADMIN_PROJECT_ID ? 'SET' : 'NOT SET',
-		clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL ? 'SET' : 'NOT SET',
-		privateKeyLength: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.length || 0,
-		isConfigured: hasProjectId && hasClientEmail && hasPrivateKey
-	});
-
 	return hasProjectId && hasClientEmail && hasPrivateKey;
 }
 
 function initializeFirebaseAdmin() {
-	if (initializationAttempted) return adminApp;
-	initializationAttempted = true;
+	if (adminApp) return adminApp;
 
 	if (!serviceAccount && !isFirebaseAdminConfigured()) {
-		console.log('Firebase Admin not configured, skipping initialization');
-		return null;
+		throw new Error('Firebase Admin not configured');
 	}
 
 	try {
-		console.log('Attempting Firebase Admin initialization...');
+		const serviceAccountToUse = serviceAccount || getServiceAccountFromEnv();
 
-		if (!admin.apps || admin.apps.length === 0) {
-			let credentialObj: any;
-			let serviceAccountToUse = serviceAccount;
-
-			// If no service account file exists but env vars are present, create temp file
-			if (!serviceAccount && isFirebaseAdminConfigured()) {
-				const tempFilePath = createServiceAccountFromEnv();
-				if (tempFilePath) {
-					serviceAccountToUse = JSON.parse(fs.readFileSync(tempFilePath, 'utf8'));
-					console.log('Using temporary service account file from environment variables');
-				}
-			}
-
-			if (serviceAccountToUse) {
-				credentialObj = admin.credential.cert(serviceAccountToUse);
-				console.log('Using service account for credentials');
-			} else {
-				throw new Error('No service account available');
-			}
-
-			admin.initializeApp({
-				credential: credentialObj,
-			});
+		if (!serviceAccountToUse) {
+			throw new Error('No service account available');
 		}
-		adminApp = admin.app();
-		console.log('Firebase Admin initialized successfully');
+
+		if (getApps().length === 0) {
+			adminApp = initializeApp({
+				credential: cert(serviceAccountToUse),
+			});
+		} else {
+			adminApp = getApps()[0];
+		}
 	} catch (err: any) {
-		// keep as stub if initialization fails
-		// eslint-disable-next-line no-console
 		console.error('Firebase Admin init error:', err?.message || err);
-		console.error('Full error:', err);
+		throw new Error('Firebase Admin initialization failed');
 	}
 
 	return adminApp;
 }
 
 export function getFirebaseAdminApp() {
-	console.log('getFirebaseAdminApp called, adminApp:', !!adminApp);
 	if (!adminApp) return initializeFirebaseAdmin();
 	return adminApp;
 }
 
 export function getFirebaseAdminAuth() {
-	console.log('getFirebaseAdminAuth called');
 	const app = getFirebaseAdminApp();
-	const auth = app ? admin.auth() : null;
-	console.log('getFirebaseAdminAuth returning:', !!auth);
-	return auth;
+	return getAuth(app);
 }
 
 export function getFirebaseAdminDb() {
-	console.log('getFirebaseAdminDb called');
 	const app = getFirebaseAdminApp();
-	const db = app ? admin.firestore() : null;
-	console.log('getFirebaseAdminDb returning:', !!db);
-	return db;
+	return getFirestore(app);
 }
+
+// Backward compatibility: export admin-like object
+const admin = {
+	app: getFirebaseAdminApp,
+	auth: () => {
+		const app = getFirebaseAdminApp();
+		return getAuth(app);
+	},
+	firestore: () => {
+		const app = getFirebaseAdminApp();
+		return getFirestore(app);
+	},
+	credential: {
+		cert: (credentials: any) => cert(credentials)
+	},
+	initializeApp: (options: any) => {
+		adminApp = initializeApp(options);
+		return adminApp;
+	},
+	apps: []
+};
 
 export default admin;
