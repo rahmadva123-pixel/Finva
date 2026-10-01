@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from "@/components/layout/admin-layout";
+import { TradingCard } from "@/components/ui/trading-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, getDoc, writeBatch, deleteDoc, serverTimestamp, addDoc } from 'firebase/firestore';
